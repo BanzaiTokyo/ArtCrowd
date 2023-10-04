@@ -1,0 +1,8 @@
+django==5.0a1
+django-rest-framework
+django-cors-headers
+Pillow
+requests
+python-dotenv
+psycopg2-binary
+pytezos

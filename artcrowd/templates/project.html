@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project</title>
+</head>
+<body>
+<div style="float: left">
+    <img src="{{ project.image }}" alt="project image" />
+</div>
+<div>
+    <h1>{{ project.title }}</h1>
+    <img src="{{ project.artist.avatar }}" alt="avatar">
+    <h2>{{ project.artist.username }}</h2>
+    {% if project.presenter %}
+        presented by <h2>{{ project.presenter.username }}</h2>
+    {% endif %}
+    <div>{{ project.description }}</div>
+    <div>Deadline: {{ project.deadline }}</div>
+    <h2>Shares</h2>
+    <div>price per share: {{ project.share_price }} Tez</div>
+    <div>purchased: {{ project.shares_sum }}</div>
+    <div>reserve: {{ project.min_shares }}</div>
+    <h2>NFT</h2>
+    <div>At the end of the project NFT will be issued with the number of editions corresponding to the number of shares purchased</div>
+    <div>Royalties: {{ project.royalty_pct }} % to the artist, {{ commission_pct }} % to the gallery</div>
+    {% if project.last_update %}
+        <h2>Update from {{ project.last_update.created_on }}</h2>
+        {% if project.last_update.image %}
+            <img src="{{ project.last_update.image }}" alt="update image" />
+        {% endif %}
+        {{ project.last_update.description|default:'' }}
+    {% endif %}
+    {% if project.artist == user or project.presenter == user %}
+        <h3>Post an update to the project</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit Update</button>
+        </form>
+    {% endif %}
+    <h2>Patrons</h2>
+    {#  and project.artist != user #}
+    {% if user and project.status not in 'new,expired,rejected,closed' %}
+        <form method="post" action="{% url 'buy_shares' project.id %}">
+            {% csrf_token %}
+            Buy <input type="number" min="1" name="num_shares" /> shares
+            <input type="submit" value="Buy" />
+        </form>
+    {% endif %}
+    {% for share in project.sorted_shares %}
+        {{ share.purchased_on }}
+        {{ share.quantity }} share{{ share.quantity|pluralize }}
+        <img src="{{ share.patron.avatar }}" alt="avatar" />
+        {{ share.patron.username }}
+    {% endfor %}
+</div>
+<div style="clear: both"></div>
+</body>
+</html>

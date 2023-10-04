@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArtCrowd</title>
+</head>
+<body>
+{% if user.is_authenticated %}
+  Hi {{ user.username }}!
+    <form action="{% url 'logout' %}" method="post" id="logout_form">
+      {% csrf_token %}
+      <input type="submit" value="Logout" />
+    </form>
+    <div>
+        {% if user.groups.all.0.name == "Artist" %}
+            <h1>Artist</h1>
+            <a href="{% url 'create_project_artist' %}">Start Project</a>
+        {% endif %}
+        {% if user.groups.all.0.name == "Gallery" %}
+            <h1>Gallery</h1>
+            {# <a href="{% url 'create_project_gallery' %}">Start Project</a> #}
+        {% endif %}
+    </div>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+</body>
+</html>
