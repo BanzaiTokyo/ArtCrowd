@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_spectacular',
     'sslserver',
     'artcrowd',
 ]
@@ -147,7 +148,16 @@ LOGOUT_REDIRECT_URL = '/'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication'
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'logins': '1/second',
+        'projects': '1/second',
+        'updates': '1/second'
+    },
+    'DEFAULT_SCHEMA_CLASS': 'artcrowd.AutoSchema'
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -156,7 +166,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
-PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq')#'KT1HTG4VgdGGqXvTi919B4y88L235thUgpcR')
+PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1WYtFLhxmBkLYJrBg4xaA6sStnMuTwZA57')  # KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq
 GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x')
 TEZOS_NETWORK = os.getenv('TEZOS_NETWORK', 'ghostnet')
 TEZOS_API = os.getenv('TEZOS_API', 'https://api.ghost.tzstats.com/explorer/')

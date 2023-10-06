@@ -5,4 +5,6 @@ Pillow
 requests
 python-dotenv
 psycopg2-binary
+django-sslserver
 pytezos
+drf-spectacular

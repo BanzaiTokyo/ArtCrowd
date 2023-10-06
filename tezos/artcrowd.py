@@ -84,7 +84,7 @@ def m():
             assert not sp.set('new', 'rejected', 'expired', 'closed').contains(project.status), "Project is not open for participation"
             nofee_amount = sp.split_tokens(project.share_price, num_shares, 1)
             total_amount = sp.split_tokens(nofee_amount, self.data.fee_pct, 100)
-            assert sp.amount == total_amount, "Transaction amount must equal to share price * number of shares"
+            assert sp.amount == total_amount, "Transaction amount must equal to share price * number of shares + service fee"
             shares_key = (project_id, sp.sender)
             project = self.data.projects[project_id]
             self.data.shares[shares_key] = self.data.shares.get(shares_key, default=0) + num_shares
@@ -110,8 +110,8 @@ def m():
                     del self.data.shares[shares_key]
                     project.total_shares = abs(project.total_shares - shares_to_remove)
                     withdraw_amount_no_fee = sp.split_tokens(project.share_price, shares_to_remove, 1)
-                    withdraw_with_fee = sp.split_tokens(withdraw_amount_no_fee, self.data.fee_pct, 100)
-                    sp.send(wallet, withdraw_with_fee)
+                    #withdraw_with_fee = sp.split_tokens(withdraw_amount_no_fee, self.data.fee_pct, 100)
+                    sp.send(wallet, withdraw_amount_no_fee)
             self.data.projects[project_id] = project
 
 
@@ -133,6 +133,6 @@ def test():
     c1.buy_shares(sp.record(project_id=project_id, num_shares=5)).run(amount=sp.mutez(515), sender=player2)
     c1.refund(sp.record(project_id=project_id, wallets=[player2])).run(sender=admin)
     c1.withdraw_mutez(sp.record(amount=sp.split_tokens(sp.mutez(309), 1, 1), destination=treasury)).run(sender=admin)
-    sc.verify(c1.balance == sp.mutez(0))
+    sc.verify(c1.balance == sp.mutez(15))  # fee from player1
     sc.verify(c1.data.shares[(1, player1)] == 3)
     sc.verify(~ c1.data.shares.contains((1, player2)))

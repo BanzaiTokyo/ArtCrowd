@@ -51,9 +51,17 @@ def generate_tokens(project: models.Model, metadata_url):
     shares = defaultdict(int)
     for share in project.sorted_shares:
         shares[share.patron.tzwallet] += share.quantity
-    params = [{"token": {"existing": token_id}, "amount": tokens, "to_": wallet} for wallet, tokens in shares.items()]
-    params[0]["token"] = {"new": {"": meta_url}}
-    contract.mint(params).send()
+    wallets = list(shares.keys())
+    ops = []
+    token_generated = False
+    for i in range(0, len(wallets), 500):
+        params = [{"token": {"existing": token_id}, "amount": shares[wallet], "to_": wallet} for wallet in wallets[i: i+500]]
+        if not token_generated:
+            params[0]["token"] = {"new": {"": meta_url}}
+            token_generated = True
+        ops.append(contract.mint(params))
+    result = tezos.bulk(*ops).send(min_confirmations=0)
+    return result
 
 
 def get_bought_shares(ophash):

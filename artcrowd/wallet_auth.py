@@ -1,4 +1,5 @@
 from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from . import blockchain
 
@@ -12,5 +13,7 @@ class WalletAuthBackend(BaseBackend):
         user = User.objects.filter(tzwallet=username).first()
         if not user:
             user = User(username=username, tzwallet=username)
+            artists = Group.objects.get(name='Artist')
+            user.groups.add(artists)
             user.save()
         return user

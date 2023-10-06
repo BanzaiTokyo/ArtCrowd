@@ -9,7 +9,7 @@ from django.conf import settings
 from . import models
 
 
-class AuthTokenSerializer(serializers.Serializer):
+class ACAuthTokenSerializer(serializers.Serializer):
     wallet = serializers.CharField(write_only=True)
     signature = serializers.CharField(write_only=True)
     message = serializers.CharField(write_only=True)
