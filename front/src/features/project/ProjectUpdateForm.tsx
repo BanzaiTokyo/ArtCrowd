@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import {useNavigate, useParams} from "react-router-dom";
-import { useForm, Controller, SubmitHandler } from "react-hook-form"
-import {useAuth} from "./AuthContext";
-import {apiBaseUrl} from "../Constants";
-import {configureFetch} from "../utils";
+import React from 'react';
+import {Controller, SubmitHandler, useForm} from "react-hook-form"
+import {useAuth} from "../../components/AuthContext";
+import {apiBaseUrl} from "../../Constants";
+import {configureFetch} from "../../utils";
 
 interface IProjectUpdate {
   image: File
@@ -13,7 +12,6 @@ interface IProjectUpdate {
 function ProjectUpdateForm(params: any) {
   const {projectId} = params;
   const { register, handleSubmit, control, setError, formState: { errors } } = useForm<IProjectUpdate>()
-  const navigate = useNavigate();
   const { token } = useAuth();
   const fetchWithAuth = configureFetch(token);
 
@@ -80,6 +78,6 @@ function ProjectUpdateForm(params: any) {
     </form>
     </div>
   );
-};
+}
 
 export default ProjectUpdateForm;

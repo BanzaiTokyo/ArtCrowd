@@ -1,11 +1,9 @@
-// src/components/AuthBlock.tsx
-import React, { useEffect, useState, useMemo } from 'react';
-import MaterialReactTable, {MRT_ColumnDef } from "material-react-table";
-import { Box  } from '@mui/material';
-import {useAuth} from "./AuthContext";
-import {configureFetch, formatTez} from "../utils";
-import {apiBaseUrl} from "../Constants";
-import LoginByWallet from "./LoginByWallet";
+import React, {useEffect, useMemo, useState} from 'react';
+import MaterialReactTable, {MRT_ColumnDef} from "material-react-table";
+import {useAuth} from "../../components/AuthContext";
+import {configureFetch, formatTez} from "../../utils";
+import {apiBaseUrl} from "../../Constants";
+import LoginByWallet from "../../components/LoginByWallet";
 
 type ProfileType = {
     projects: Record<string, any>[],
