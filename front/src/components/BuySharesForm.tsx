@@ -2,7 +2,7 @@ import React from 'react';
 import {useNavigate} from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form"
 import {useAuth} from "./AuthContext";
-import {apiBaseUrl} from "../Constants";
+import {API_BASE_URL} from "../Constants";
 import {configureFetch} from "../utils";
 import {buyShares} from "../Tezos";
 
@@ -24,7 +24,7 @@ function BuySharesForm(params: any) {
       return
     }
     try {
-      const response = await fetchWithAuth(apiBaseUrl+`${project.id}/buy`, {
+      const response = await fetchWithAuth(API_BASE_URL+`${project.id}/buy`, {
         method: 'POST',
         body: JSON.stringify({ophash}),
       });

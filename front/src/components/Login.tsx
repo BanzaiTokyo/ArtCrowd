@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {apiBaseUrl} from "../Constants";
+import {API_BASE_URL} from "../Constants";
 import {useAuth} from "./AuthContext";
 import {useNavigate} from "react-router-dom";
 
@@ -21,7 +21,7 @@ const FormPage: React.FC = () => {
     });
   };
 
-  const handleSubmit = async () => fetch(apiBaseUrl+'login', {
+  const handleSubmit = async () => fetch(API_BASE_URL+'login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

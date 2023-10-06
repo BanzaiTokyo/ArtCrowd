@@ -1,5 +1,5 @@
 import {TezosToolkit} from "@taquito/taquito";
-import {artcrowdContract, tezosUrl, tezosNetwork, feePct} from "./Constants";
+import {ARTCROWD_CONTRACT, TEZOS_URL, TEZOS_NETWORK, FEE_PCT} from "./Constants";
 import {BeaconWallet} from "@taquito/beacon-wallet";
 import { NetworkType } from '@airgap/beacon-types';
 
@@ -7,8 +7,8 @@ export const buyShares = async (projectId: number, sharePrice: number, numShares
     try {
         const walletPermissions = {
             network: {
-                type: tezosNetwork as NetworkType,
-                rpcUrl: tezosUrl
+                type: TEZOS_NETWORK as NetworkType,
+                rpcUrl: TEZOS_URL
             }
         }
         const Tezos = new TezosToolkit(walletPermissions.network.rpcUrl);
@@ -18,10 +18,10 @@ export const buyShares = async (projectId: number, sharePrice: number, numShares
         }
         Tezos.setWalletProvider(wallet);
 
-        return await Tezos.wallet.at(artcrowdContract)
+        return await Tezos.wallet.at(ARTCROWD_CONTRACT)
             .then((contract) => contract.methods
                 .buy_shares(numShares, projectId)
-                .send({amount: Math.floor(numShares * sharePrice * (1 + feePct/100) * 1_000_000), mutez: true}))
+                .send({amount: Math.floor(numShares * sharePrice * (1 + FEE_PCT/100) * 1_000_000), mutez: true}))
             .then((op) => {
                 return op.confirmation().then(() => op.opHash)
             })

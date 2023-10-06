@@ -2,9 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {useParams,} from 'react-router-dom';
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch, formatTez} from "../../utils";
-import {apiBaseUrl} from "../../Constants";
+import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
 import BuySharesForm from "../../components/BuySharesForm";
-import LoginByWallet from "../../components/LoginByWallet";
 import ProjectUpdateForm from "./ProjectUpdateForm";
 
 const ProjectPage: React.FC = () => {
@@ -15,16 +14,13 @@ const ProjectPage: React.FC = () => {
 
     useEffect(() => {
         if (projectId && (token != null)) {
-            fetchWithAuth(`${apiBaseUrl}${projectId}`)
+            fetchWithAuth(`${API_BASE_URL}${PROJECT_ENDPOINT}/${projectId}`)
                 .then(response => response.json())
                 .then((project) => setProject(project))
         }
     }, [projectId, token])
 
     return project ? <>
-        <div style={{textAlign: "right"}}>
-            <LoginByWallet/>
-        </div>
         <div style={{float: "left"}}>
             <img src={project.image} alt={`project ${projectId} preview`}/>
         </div>

@@ -1,11 +1,11 @@
 import React from "react";
-import {siteName} from "../../Constants";
+import {SITE_NAME} from "../../Constants";
 
 function About() {
 
     return (
         <main>
-            <h1>About {siteName}</h1>
+            <h1>About {SITE_NAME}</h1>
             <p>This is a kind of kickstarter to support art projects. Once the project is completed, you will receive an
                 NFT on Tezos blockchain to commemorate your contribution.</p>
 

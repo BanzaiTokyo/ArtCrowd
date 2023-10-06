@@ -18,7 +18,9 @@ import {
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from '@mui/icons-material/Menu';
 import InfoIcon from '@mui/icons-material/Info';
-import {siteName} from "../Constants";
+import PersonIcon from '@mui/icons-material/Person';
+import {SITE_NAME} from "../Constants";
+import LoginByWallet from "./LoginByWallet";
 
 const drawerWidth = 240;
 
@@ -33,7 +35,7 @@ function Header() {
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{textAlign: 'center'}}>
             <Typography variant="h6" sx={{my: 2}}>
-                {siteName}
+                {SITE_NAME}
             </Typography>
             <Divider/>
 
@@ -46,7 +48,16 @@ function Header() {
                             </ListItemIcon>
                             <ListItemText primary={"About"}/>
                         </ListItemButton>
-                    </ListItem></a>
+                    </ListItem>
+                </a>
+                <ListItem disablePadding>
+                    <ListItemButton sx={{textAlign: 'left'}}>
+                        <ListItemIcon>
+                            <PersonIcon/>
+                        </ListItemIcon>
+                        <LoginByWallet/>
+                    </ListItemButton>
+                </ListItem>
             </List>
         </Box>
     );
@@ -85,13 +96,12 @@ function Header() {
                             }}
                         >
                             <Link href={'/'}
-                                  style={{color: 'white'}}
+                                  style={{color: 'white', paddingRight:'5rem'}}
                                   color={'inherit'}
                                   underline="none">
-                                {siteName}
+                                {SITE_NAME}
                             </Link>
-                        </Typography>
-                        <Box sx={{display: {xs: 'none', sm: 'block'}}}>
+
                             <Button sx={{color: '#fff'}}>
                                 <Link href={'/about'}
                                       style={{color: 'white'}}
@@ -99,6 +109,10 @@ function Header() {
                                       underline="none"
                                 >About</Link>
                             </Button>
+
+                        </Typography>
+                        <Box sx={{display: {xs: 'none', sm: 'block'}}}>
+                            <LoginByWallet/>
                         </Box>
                     </Box>
                 </Toolbar>

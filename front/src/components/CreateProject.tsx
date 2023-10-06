@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {useNavigate} from "react-router-dom";
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import {useAuth} from "./AuthContext";
-import {apiBaseUrl} from "../Constants";
+import {API_BASE_URL} from "../Constants";
 import {configureFetch} from "../utils";
 
 interface INewProject {
@@ -30,7 +30,7 @@ const CreateProject: React.FC = () => {
       formData.append(key, data[key as keyof INewProject]);
     }
     try {
-      const response = await fetchWithAuth(apiBaseUrl+'create', {
+      const response = await fetchWithAuth(API_BASE_URL+'create', {
         method: 'POST',
         body: formData,
         headers: {

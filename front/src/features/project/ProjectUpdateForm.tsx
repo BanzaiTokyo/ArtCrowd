@@ -1,7 +1,7 @@
 import React from 'react';
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
 import {useAuth} from "../../components/AuthContext";
-import {apiBaseUrl} from "../../Constants";
+import {API_BASE_URL} from "../../Constants";
 import {configureFetch} from "../../utils";
 
 interface IProjectUpdate {
@@ -25,7 +25,7 @@ function ProjectUpdateForm(params: any) {
       }
     }
     try {
-      const response = await fetchWithAuth(apiBaseUrl+`${projectId}/update`, {
+      const response = await fetchWithAuth(API_BASE_URL+`${projectId}/update`, {
         method: 'POST',
         body: formData,
         headers: {

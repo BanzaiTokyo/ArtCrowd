@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {apiBaseUrl} from "../Constants";
-import {configureFetch} from "../utils";
+import React, {createContext, ReactNode, useContext, useState} from 'react';
 
 type AuthContextType = {
   token: string | null;
