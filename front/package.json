@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mui/material": "^5.14.12",
+    "@mui/x-date-pickers": "^6.16.1",
     "@taquito/beacon-wallet": "^17.3.1",
     "@taquito/signer": "^17.3.1",
     "@taquito/taquito": "^17.3.1",
@@ -14,6 +16,7 @@
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
     "buffer": "^6.0.3",
+    "dayjs": "^1.11.10",
     "material-react-table": "^1.14.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
