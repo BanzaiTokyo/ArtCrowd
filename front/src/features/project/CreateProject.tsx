@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {Button, FormControlLabel, Grid, Radio, RadioGroup, TextField, Typography} from "@mui/material";
+import {Button, FormControlLabel, Grid, Radio, RadioGroup, Slider, TextField, Typography} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch} from "../../utils";
 import dayjs from "dayjs";
@@ -13,12 +13,59 @@ interface INewProject {
     title: string
     description: string
     image: File
-    customDeadline: dayjs.Dayjs
+    deadline: dayjs.Dayjs
     share_price: number
     min_shares: number
     max_shares: number | null
     royalty_pct: number | null
 }
+
+const royaltiesMarks = [
+    {
+        value: 0,
+        label: '0',
+    },
+    {
+        value: 1,
+        label: '1%',
+    },
+    {
+        value: 2,
+        label: '2%',
+    },
+    {
+        value: 3,
+        label: '3%',
+    },
+    {
+        value: 4,
+        label: '4%',
+    },
+    {
+        value: 5,
+        label: '5%',
+    },
+    {
+        value: 6,
+        label: '6%',
+    },
+    {
+        value: 7,
+        label: '7%',
+    },
+    {
+        value: 8,
+        label: '8%',
+    },
+    {
+        value: 9,
+        label: '9%',
+    },
+    {
+        value: 10,
+        label: '10%',
+    },
+];
 
 const CreateProject = () => {
     const {
@@ -31,24 +78,28 @@ const CreateProject = () => {
         formState: {errors}
     } = useForm<INewProject>({
         defaultValues: {
-            customDeadline: dayjs().add(1, 'month'),
+            deadline: dayjs().add(2, 'month'),
+            royalty_pct: 5,
         }
     })
     const [imageUrl, setImageUrl] = useState('');
 
-    const [customDeadline, setCustomDeadline] = useState(dayjs().add(1, 'month'));
+    const [deadlineDate, setDeadlineDate] = useState(dayjs().add(2, 'month'));
+
     const navigate = useNavigate();
     const {token, logout} = useAuth();
     const fetchWithAuth = configureFetch(token);
 
-    const [selectedNumberOfMonths, setSelectedNumberOfMonths] = useState("2");
+    // the variable name is so cryptic because it can be 1, 2, 3 and... custom!
+    const [deadlineRadiobuttonValue, setDeadlineRadiobuttonValue] = useState("2");
+
     const [isCustomDeadline, setIsCustomDeadline] = useState(false);
 
     const onSubmit: SubmitHandler<INewProject> = async (data) => {
         const formData = new FormData();
         for (const key in data) {
             // @ts-ignore
-            if (key === 'customDeadline') {
+            if (key === 'deadline') {
                 if (data[key].isValid()) {
                     formData.append(key, data[key].toISOString())
                 }
@@ -101,17 +152,22 @@ const CreateProject = () => {
         return <div>Please sign in with a wallet</div>;
 
     function onDeadlineRadioChange(_event: React.ChangeEvent, value: string) {
-        setSelectedNumberOfMonths(value);
-
         if (value === 'custom') {
             setIsCustomDeadline(true);
         } else {
             const newDate = dayjs().add(Number(value), 'month');
-            setCustomDeadline(newDate)
-            setValue('customDeadline', newDate);
+            setDeadlineDate(newDate)
+            setValue('deadline', newDate);
             setIsCustomDeadline(false);
         }
+        setDeadlineRadiobuttonValue(value);
     }
+
+    const onRoyaltiesChange  = (event: Event, newValue: number | number[]) => {
+            if (typeof newValue === 'number') {
+                setValue('royalty_pct', newValue);
+            }
+        };
 
     return (
         <div>
@@ -169,15 +225,14 @@ const CreateProject = () => {
                         )}
                     </Grid>
 
-
-                    {/* project duration */}
+                    {/* project deadline */}
                     <Grid item xs={12}>
-                        <Typography variant="h5"> Project duration</Typography>
-                        <Controller name="customDeadline" control={control}
+                        <Typography variant="h5"> Project deadline</Typography>
+                        <Controller name="deadline" control={control}
                                     rules={{required: 'This field is required'}} render={({field}) =>
                             <RadioGroup
-                                aria-labelledby="demo-radio-buttons-group-label"
-                                value={selectedNumberOfMonths}
+                                aria-labelledby="project-deadline-radio-buttons-group"
+                                value={deadlineRadiobuttonValue}
                                 name="radio-buttons-group"
                                 row
                                 onChange={onDeadlineRadioChange}
@@ -208,7 +263,7 @@ const CreateProject = () => {
                                         minDate={dayjs().add(7, 'day')}
                                         maxDate={dayjs().add(1, 'year')}
 
-                                        value={customDeadline}
+                                        value={deadlineDate}
                                         onChange={(value: any, err: any) => {
                                             field.onChange(value);
                                             if (err.validationError) {
@@ -220,14 +275,14 @@ const CreateProject = () => {
                                                 setValue(field.name, null)
                                             } else {
                                                 const newDate = value as dayjs.Dayjs;
-                                                setCustomDeadline(newDate)
+                                                setDeadlineDate(newDate)
                                                 setValue(field.name, newDate);
                                             }
                                         }}
                                         slotProps={{
                                             textField: {
-                                                error: !!errors.customDeadline,
-                                                helperText: errors.customDeadline?.message
+                                                error: !!errors.deadline,
+                                                helperText: errors.deadline?.message
                                             }
                                         }}
                                         views={['day']}/>
@@ -235,34 +290,56 @@ const CreateProject = () => {
                                 }
                             </RadioGroup>}/>
 
-                        <div>The project will be open until <strong>{customDeadline.format('MMMM DD, YYYY')}</strong>.
+                        <div>The project will be open until <strong>{deadlineDate.format('MMMM DD, YYYY')}</strong>.
                             It needs to be approved by the administrator first.
                         </div>
 
                     </Grid>
 
-                    <Grid item xs={2}>
+                    <Grid item xs={12}>
+                        <Typography variant="h5"> Shares</Typography>
+                        <Typography component={'p'} sx={{paddingBottom: '1rem'}}>Your fans will be able to purchase
+                            shares of your future work. This
+                            does not mean they will own the work, but this share will get them a copy of the NFT that
+                            will be minted when your project is finished.</Typography>
+
                         <TextField
                             type="number" label="Share price, TEZ"
+                            defaultValue={5}
                             inputProps={{
-                                min: 0.01,
+                                min: 1,
+                                max: 1000,
                                 step: "any", ...register("share_price", {required: 'This field is required'})
                             }}
                             error={!!errors.share_price}
                             helperText={errors.share_price?.message}
                         />
                     </Grid>
-                    <Grid item xs={2}>
-                        <TextField
-                            type="number" label="Royalties, %"
-                            inputProps={{min: 0, max: 100, step: "any", ...register("royalty_pct")}}
-                            error={!!errors.royalty_pct}
-                            helperText={errors.royalty_pct?.message}
-                        />
+
+                    <Grid item xs={12}>
+                        <Typography variant="h5">Royalties</Typography>
+                        <Typography component={'p'}>When the project is finished and we mint NFTs for your fans this is
+                            the royalties percentage you want those NFTs to have.</Typography>
+
+                        <Controller name="royalty_pct" control={control}
+                                    // rules={{required: 'This field is required'}}
+                                    render={({field}) =>
+                            <Slider
+                                aria-label="Temperature"
+                                defaultValue={5}
+                                valueLabelDisplay="off"
+                                onChange={onRoyaltiesChange}
+                                // step={11}
+                                marks={royaltiesMarks}
+                                min={0}
+                                max={10}
+                            />}/>
                     </Grid>
-                    <Grid item xs={2}>
+
+                    <Grid item xs={12}>
                         <TextField
                             type="number" label="Min. # of shares"
+                            defaultValue={1}
                             inputProps={{
                                 min: 1,
                                 step: "any", ...register("min_shares", {required: 'This field is required'})
@@ -271,7 +348,8 @@ const CreateProject = () => {
                             helperText={errors.min_shares?.message}
                         />
                     </Grid>
-                    <Grid item xs={2}>
+
+                    <Grid item xs={12}>
                         <TextField
                             type="number" label="Max. # of shares"
                             inputProps={{min: 0, step: "any", ...register("max_shares")}}
@@ -279,7 +357,8 @@ const CreateProject = () => {
                             helperText={errors.max_shares?.message}
                         />
                     </Grid>
-                    <Grid item xs={4} sx={{textAlign: "right"}}>
+
+                    <Grid item xs={12} sx={{textAlign: "right"}}>
                         <Button type="submit" variant="contained">Submit</Button>
                     </Grid>
                 </Grid>
