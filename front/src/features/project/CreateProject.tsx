@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {Button, FormControl, FormControlLabel, Grid, Radio, RadioGroup, TextField, Typography} from "@mui/material";
+import {Button, FormControlLabel, Grid, Radio, RadioGroup, TextField, Typography} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch} from "../../utils";
 import dayjs from "dayjs";
@@ -14,7 +14,6 @@ interface INewProject {
     description: string
     image: File
     customDeadline: dayjs.Dayjs
-    durationDays: number
     share_price: number
     min_shares: number
     max_shares: number | null
@@ -85,10 +84,6 @@ const CreateProject = () => {
         // }
     };
 
-    const onCustomDatePickerChange = () => {
-
-    }
-
     const drawPickedImage = (event: any) => {
         clearErrors('image')
         const file = event.target.files[0];
@@ -105,13 +100,15 @@ const CreateProject = () => {
     if (!token)
         return <div>Please sign in with a wallet</div>;
 
-    function onDurationChange(_event: React.ChangeEvent, value: string) {
+    function onDeadlineRadioChange(_event: React.ChangeEvent, value: string) {
         setSelectedNumberOfMonths(value);
 
         if (value === 'custom') {
             setIsCustomDeadline(true);
         } else {
-            setCustomDeadline(dayjs().add(Number(value), 'month'))
+            const newDate = dayjs().add(Number(value), 'month');
+            setCustomDeadline(newDate)
+            setValue('customDeadline', newDate);
             setIsCustomDeadline(false);
         }
     }
@@ -176,13 +173,14 @@ const CreateProject = () => {
                     {/* project duration */}
                     <Grid item xs={12}>
                         <Typography variant="h5"> Project duration</Typography>
-                        <FormControl>
+                        <Controller name="customDeadline" control={control}
+                                    rules={{required: 'This field is required'}} render={({field}) =>
                             <RadioGroup
                                 aria-labelledby="demo-radio-buttons-group-label"
                                 value={selectedNumberOfMonths}
                                 name="radio-buttons-group"
                                 row
-                                onChange={onDurationChange}
+                                onChange={onDeadlineRadioChange}
                             >
                                 <FormControlLabel value="1" control={<Radio/>} label="1 month"/>
                                 <FormControlLabel value="2" control={<Radio/>} label="2 months"/>
@@ -203,48 +201,43 @@ const CreateProject = () => {
                                         }
                                     }}
                                 />
-                                {isCustomDeadline && <Controller name="customDeadline" control={control}
-                                                                 rules={{required: 'This field is required'}}
-                                                                 render={({field}) =>
-                                                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                         <DatePicker
-                                                                             label="Deadline"
-                                                                             format="DD, MMMM YYYY"
-                                                                             minDate={dayjs().add(7, 'day')}
-                                                                             maxDate={dayjs().add(1, 'year')}
+                                {isCustomDeadline && <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label="Deadline"
+                                        format="DD, MMMM YYYY"
+                                        minDate={dayjs().add(7, 'day')}
+                                        maxDate={dayjs().add(1, 'year')}
 
-                                                                             value={customDeadline}
-                                                                             onChange={(value: any, err: any) => {
-                                                                                 field.onChange(value);
-                                                                                 if (err.validationError) {
-                                                                                     setError(field.name, {
-                                                                                         type: 'custom',
-                                                                                         message: err.validationError
-                                                                                     })
-                                                                                     // @ts-ignore
-                                                                                     setValue(field.name, null)
-                                                                                 } else setValue(field.name, value as dayjs.Dayjs)
-                                                                             }}
-                                                                             slotProps={{
-                                                                                 textField: {
-                                                                                     error: !!errors.customDeadline,
-                                                                                     helperText: errors.customDeadline?.message
-                                                                                 }
-                                                                             }}
-                                                                             views={['day']}/>
-                                                                     </LocalizationProvider>
-                                                                 }/>}
-                            </RadioGroup>
+                                        value={customDeadline}
+                                        onChange={(value: any, err: any) => {
+                                            field.onChange(value);
+                                            if (err.validationError) {
+                                                setError(field.name, {
+                                                    type: 'custom',
+                                                    message: err.validationError
+                                                })
+                                                // @ts-ignore
+                                                setValue(field.name, null)
+                                            } else {
+                                                const newDate = value as dayjs.Dayjs;
+                                                setCustomDeadline(newDate)
+                                                setValue(field.name, newDate);
+                                            }
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                error: !!errors.customDeadline,
+                                                helperText: errors.customDeadline?.message
+                                            }
+                                        }}
+                                        views={['day']}/>
+                                </LocalizationProvider>
+                                }
+                            </RadioGroup>}/>
 
-                        </FormControl>
-
-                        {isCustomDeadline ? <div>No matter when the project is approved, it will end
-                                on <strong>{customDeadline.format('MMMM DD, YYYY')}</strong></div> :
-                            <div>The project will be open
-                                until <strong>{customDeadline.format('MMMM DD, YYYY')}</strong> if it is approved by
-                                the administration and goes live today. In other words, once it is approved it will run
-                                for <strong>{Number(selectedNumberOfMonths) * 30} </strong> days.
-                            </div>}
+                        <div>The project will be open until <strong>{customDeadline.format('MMMM DD, YYYY')}</strong>.
+                            It needs to be approved by the administrator first.
+                        </div>
 
                     </Grid>
 
