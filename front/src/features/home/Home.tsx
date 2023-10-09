@@ -9,7 +9,7 @@ type ProfileType = {
     gallery_projects: Record<string, any>[],
     supported_projects: Record<string, any>[],
 }
-const ProfilePage = () => {
+const Home = () => {
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
     const [data, setData] = useState<ProfileType | null>(null);
@@ -91,4 +91,4 @@ const ProfilePage = () => {
     );
 };
 
-export default ProfilePage;
+export default Home;
