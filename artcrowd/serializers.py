@@ -93,7 +93,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     deadline = serializers.DateTimeField(
         validators=[MinValueValidator(datetime.now(tz=timezone.utc) + timedelta(days=1))]
     )
-    share_price = serializers.DecimalField(min_value=1, max_digits=18, decimal_places=0)
+    share_price = serializers.DecimalField(min_value=0.1, max_digits=12, decimal_places=2)
     min_shares = serializers.IntegerField(required=False, min_value=1)
     max_shares = serializers.IntegerField(required=False, min_value=1)
 
@@ -105,7 +105,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             if max_shares < min_shares:
                 raise serializers.ValidationError({"max_shares": ["Max shares must be greater than min shares"]})
 
-        data['share_price'] = data['share_price']
+        data['share_price'] = data['share_price'] * 1_000_000
 
         return data
 

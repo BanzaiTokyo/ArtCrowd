@@ -14,6 +14,7 @@ class WalletAuthBackend(BaseBackend):
         if not user:
             user = User(username=username, tzwallet=username)
             artists = Group.objects.get(name='Artist')
+            user.save()
             user.groups.add(artists)
             user.save()
         return user

@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken import views as auth_views
 from rest_framework.throttling import ScopedRateThrottle
+from rest_framework.filters import BaseFilterBackend
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from . import models, serializers, blockchain
 
@@ -55,6 +58,28 @@ class ProfileView(generics.views.APIView):
         }
         serializer = serializers.ProjectListSerializer(data, context={'request': request})
         return Response(serializer.data)
+
+
+class ProjectsList(generics.ListAPIView):
+    """All projects"""
+
+    class OpenFilter(django_filters.FilterSet):
+        open = django_filters.BooleanFilter(method='filter_open')
+        artist = django_filters.CharFilter(field_name='artist__username')
+
+        def filter_open(self, queryset, name, value, *args, **kwargs):
+            if value:
+                return queryset.filter(status__in=(models.Project.APPROVED_BY_ADMIN, models.Project.APPROVED_BY_ARTIST))
+            else:
+                return queryset.exclude(status__in=(models.Project.CLOSED, models.Project.REJECTED))
+
+        class Meta:
+            model = models.Project
+            fields = ['status', 'artist__username']
+
+    queryset = models.Project.objects.all()
+    serializer_class = serializers.ProjectSerializer
+    filterset_class = OpenFilter
 
 
 class ProjectDetail(generics.RetrieveAPIView):
@@ -126,12 +151,13 @@ url_patterns = [
     path("logout", LogoutView.as_view(), name='logout'),
     path("checkin", CheckinView.as_view(), name='checkin'),
     path("profile", ProfileView.as_view(), name='profile'),
-    path("project/<int:pk>", ProjectDetail.as_view(), name='project'),
-    path("project/<int:pk>/update", ProjectUpdate.as_view(), name='project_update'),
-    path("project/<int:pk>/buy", BuySharesView.as_view(), name='buy_shares'),
-    path("project/<int:pk>/metadata", ProjectMetadataView.as_view(), name='project_metadata'),
-    path("project/create", ProjectCreateView.as_view(), name='create_project_artist'),
-    path("project/create/for/<int:artist_id>", ProjectCreateView.as_view(), name='create_project_gallery'),
+    path("projects", ProjectsList.as_view(), name='projects'),
+    path("projects/<int:pk>", ProjectDetail.as_view(), name='project'),
+    path("projects/<int:pk>/update", ProjectUpdate.as_view(), name='project_update'),
+    path("projects/<int:pk>/buy", BuySharesView.as_view(), name='buy_shares'),
+    path("projects/<int:pk>/metadata", ProjectMetadataView.as_view(), name='project_metadata'),
+    path("projects/create", ProjectCreateView.as_view(), name='create_project_artist'),
+    path("projects/create/for/<int:artist_id>", ProjectCreateView.as_view(), name='create_project_gallery'),
 
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('docs', SpectacularSwaggerView.as_view(url_name='schema')),

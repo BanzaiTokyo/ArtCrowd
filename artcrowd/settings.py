@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     'drf_spectacular',
     'sslserver',
     'artcrowd',
@@ -157,6 +158,9 @@ REST_FRAMEWORK = {
         'projects': '1/second',
         'updates': '1/second'
     },
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
     'DEFAULT_SCHEMA_CLASS': 'artcrowd.AutoSchema'
 }
 
