@@ -27,8 +27,9 @@ SECRET_KEY = 'django-insecure-&tr-pkg#udde!du2##4f23f**+4ps#z+vm@*hqtb#yf3d$u10d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['localhost', 'api.artcrowd.org']
+USE_X_FORWARDED_PROTO = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
