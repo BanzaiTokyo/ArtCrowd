@@ -62,7 +62,7 @@ const ProjectPage: React.FC = () => {
             })}
         </div>
         <div style={{clear: "both"}}></div>
-    </> : <></>;
+    </> : <>Project not found</>;
 };
 
 export default ProjectPage;
