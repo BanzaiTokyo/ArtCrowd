@@ -9,6 +9,7 @@ import {
     FormControlLabel,
     Grid,
     IconButton,
+    InputAdornment,
     Radio,
     RadioGroup,
     Slider,
@@ -23,6 +24,7 @@ import {grey} from '@mui/material/colors';
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
+import {API_BASE_URL} from "../../Constants";
 
 interface INewProject {
     title: string
@@ -87,6 +89,7 @@ const royaltiesMarks = [
 const CreateProject = () => {
     const {
         register,
+        getValues,
         control,
         setValue,
         setError,
@@ -103,18 +106,28 @@ const CreateProject = () => {
 
     const [deadlineDate, setDeadlineDate] = useState(dayjs().add(2, 'month'));
 
-    const navigate = useNavigate();
-    const {token, logout} = useAuth();
-    const fetchWithAuth = configureFetch(token);
-
     // the variable name is so cryptic because it can be 1, 2, 3 and... custom!
     const [deadlineRadiobuttonValue, setDeadlineRadiobuttonValue] = useState("2");
 
     const [isCustomDeadline, setIsCustomDeadline] = useState(false);
     const [isHelpNewProjectVisible, setIsHelpNewProjectVisible] = useState(false);
     const [isHelpDeadlineVisible, setIsHelpDeadlineVisible] = useState(false);
+    const [isHelpSharesVisible, setIsHelpSharesVisible] = useState(false);
+    const [isHelpReserveVisible, setIsHelpReserveVisible] = useState(false);
+    const [isHelpMaxSharesVisible, setIsHelpMaxSharesVisible] = useState(false);
+
+    const [isAdditionalOptionsVisible, setIsAdditionalOptionsVisible] = useState(false);
+
+    const navigate = useNavigate();
+    const {token, logout} = useAuth();
+    const fetchWithAuth = configureFetch(token);
+
 
     const onSubmit: SubmitHandler<INewProject> = async (data) => {
+
+        //FIXME: form values are here. but I have no idea how to convert this to formData
+        console.log(getValues())
+
         const formData = new FormData();
         for (const key in data) {
             // @ts-ignore
@@ -125,33 +138,30 @@ const CreateProject = () => {
                 // @ts-ignore
             } else if (!!data[key]) formData.append(key, data[key]);
         }
-
-        console.log('----------------------- ', data)
-
-        // try {
-        //     const response = await fetchWithAuth(API_BASE_URL + 'project/create', {
-        //         method: 'POST',
-        //         body: formData,
-        //         headers: {
-        //             'Content-Type': 'multipart/form-data',
-        //         },
-        //     });
-        //     const responseData = await response.json();
-        //     if (response.ok) {
-        //         navigate(`/${responseData.id}`)
-        //     } else if (response.status === 401) {
-        //         logout()
-        //     } else {
-        //         for (const field in responseData) {
-        //             setError(field as keyof INewProject, {
-        //                 type: 'custom',
-        //                 message: responseData[field][0],
-        //             });
-        //         }
-        //     }
-        // } catch (error) {
-        //     console.error('API Error:', error);
-        // }
+        try {
+            const response = await fetchWithAuth(API_BASE_URL + 'project/create', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            const responseData = await response.json();
+            if (response.ok) {
+                navigate(`/${responseData.id}`)
+            } else if (response.status === 401) {
+                logout()
+            } else {
+                for (const field in responseData) {
+                    setError(field as keyof INewProject, {
+                        type: 'custom',
+                        message: responseData[field][0],
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('API Error:', error);
+        }
     };
 
     const drawPickedImage = (event: any) => {
@@ -194,6 +204,22 @@ const CreateProject = () => {
 
     function toggleHelpDeadline() {
         setIsHelpDeadlineVisible((prev) => !prev);
+    }
+
+    function toggleHelpShares() {
+        setIsHelpSharesVisible((prev) => !prev);
+    }
+
+    function toggleAdditionalOptions() {
+        setIsAdditionalOptionsVisible((prev) => !prev);
+    }
+
+    function toggleHelpReserve() {
+        setIsHelpReserveVisible((prev) => !prev);
+    }
+
+    function toggleHelpMaxShares() {
+        setIsHelpMaxSharesVisible((prev) => !prev);
     }
 
     return (
@@ -266,7 +292,7 @@ const CreateProject = () => {
                     {/* project deadline */}
                     <Grid item xs={12}>
                         <Typography variant="h5"> Project deadline
-                            <IconButton color="primary" aria-label="help on creating a new project"
+                            <IconButton color="primary" aria-label="help on project deadline"
                                         onClick={toggleHelpDeadline}>
                                 <InfoIcon/>
                             </IconButton>
@@ -276,7 +302,8 @@ const CreateProject = () => {
                                 <Alert
                                     severity="info"
                                     onClose={toggleHelpDeadline}>
-                                    <Typography component={'p'}>Choose when you want the project to end.</Typography></Alert>
+                                    <Typography component={'p'}>Choose when you want the project to
+                                        end.</Typography></Alert>
                             </Fade>}
                         </TransitionGroup>
 
@@ -350,14 +377,35 @@ const CreateProject = () => {
                     {VerticalSpacer}
 
                     <Grid item xs={12}>
-                        <Typography variant="h5"> Shares</Typography>
-                        <Typography component={'p'} sx={{paddingBottom: '1rem'}}>Your fans will be able to purchase
-                            shares of your future work. This
-                            does not mean they will own the work, but this share will get them a copy of the NFT that
-                            will be minted when your project is finished.</Typography>
+                        <Typography variant="h5"> Shares
+                            <IconButton color="primary" aria-label="help on project shares"
+                                        onClick={toggleHelpShares}>
+                                <InfoIcon/>
+                            </IconButton>
+                        </Typography>
+                        <TransitionGroup>
+                            {isHelpSharesVisible && <Fade in={isHelpSharesVisible}>
+                                <Alert
+                                    severity="info"
+                                    onClose={toggleHelpShares}
+                                >
+                                    <Typography component={'p'}>Your fans will be able to purchase shares of your future
+                                        work. This does not mean they will own the work, but this share will get them a
+                                        copy of the NFT that will be minted when your project is finished.</Typography>
+                                </Alert>
+                            </Fade>}
+                        </TransitionGroup>
+
+                        <Typography component={'p'} sx={{paddingBottom: '1rem', paddingTop: '1rem'}}>Set the price of a
+                            single share (in
+                            Tez) that will be available to your fans.</Typography>
 
                         <TextField
-                            type="number" label="Share price, TEZ"
+                            type="number"
+                            label="Share price, TEZ"
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">TEZ</InputAdornment>,
+                            }}
                             defaultValue={5}
                             inputProps={{
                                 min: 1,
@@ -369,10 +417,98 @@ const CreateProject = () => {
                         />
                     </Grid>
 
-                    {VerticalSpacer}
+                    <Grid item xs={12}>
+                        <Button
+                            onClick={toggleAdditionalOptions}>{isAdditionalOptionsVisible ? 'Hide ' : 'Show '} additional
+                            options</Button>
+
+                        {isAdditionalOptionsVisible && <Box sx={{borderTop: 1, borderColor: 'divider'}}>
+
+                            <Grid container rowSpacing={3} columnSpacing={2}>
+                                <Grid item xs={12}>
+                                    <TransitionGroup>
+                                        {isHelpReserveVisible && <Fade in={isHelpReserveVisible}>
+                                            <div>
+                                                <br/>
+                                                <Alert
+                                                    severity="info"
+                                                    onClose={toggleHelpReserve}
+                                                >
+                                                    <Typography component={'p'}>The minimum shares that need to be sold
+                                                        for the project to be successful. If less than reserved number
+                                                        of shares is sold by the deadline, the NFT will not be minted
+                                                        and distributed to the patrons. Instead the funds will be
+                                                        refunded to them.</Typography>
+                                                </Alert></div>
+                                        </Fade>}
+                                    </TransitionGroup>
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    {/*TODO: validate to allow only int > 0*/}
+                                    <TextField
+                                        sx={{maxWidth: '260px'}}
+                                        type="number" label="Reserved # of shares"
+                                        defaultValue={1}
+                                        InputProps={{
+                                            endAdornment:
+                                                <IconButton color="primary"
+                                                            aria-label="help on creating a new project"
+                                                            onClick={toggleHelpReserve}>
+                                                    <InfoIcon/>
+                                                </IconButton>
+                                            ,
+                                            min: 1,
+                                            ...register("min_shares", {required: 'This field is required'})
+                                        }}
+
+                                        error={!!errors.min_shares}
+                                        helperText={errors.min_shares?.message}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    <TransitionGroup>
+                                        {isHelpMaxSharesVisible && <Fade in={isHelpMaxSharesVisible}>
+                                            <div>
+                                                <br/>
+                                                <Alert
+                                                    severity="info"
+                                                    onClose={toggleHelpMaxShares}
+                                                >
+                                                    <Typography component={'p'}>After reaching this number, no more
+                                                        shares will be sold.</Typography>
+                                                </Alert></div>
+                                        </Fade>}
+                                    </TransitionGroup>
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    <TextField
+                                        defaultValue={10_000}
+                                        sx={{maxWidth: '260px'}}
+                                        type="number" label="Max. # of shares"
+                                        InputProps={{
+                                            endAdornment:
+                                                <IconButton color="primary"
+                                                            aria-label="help on creating a new project"
+                                                            onClick={toggleHelpMaxShares}>
+                                                    <InfoIcon/>
+                                                </IconButton>
+                                        }}
+                                        inputProps={{min: 0, step: "any", ...register("max_shares")}}
+                                        error={!!errors.max_shares}
+                                        helperText={errors.max_shares?.message}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Box>}
+                    </Grid>
+
+                    {/*{VerticalSpacer}*/}
 
                     <Grid item xs={12}>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                             <Typography variant="overline">Once you finish your project:</Typography></Box>
                     </Grid>
                     <Grid item xs={12}>
@@ -385,7 +521,7 @@ const CreateProject = () => {
 
                         <Controller name="royalty_pct" control={control}
                             // rules={{required: 'This field is required'}}
-                                    render={({field}) =>
+                                    render={() =>
                                         <Slider
                                             aria-label="Temperature"
                                             defaultValue={5}
@@ -396,30 +532,6 @@ const CreateProject = () => {
                                             min={0}
                                             max={10}
                                         />}/>
-                    </Grid>
-
-                    {VerticalSpacer}
-
-                    <Grid item xs={12}>
-                        <TextField
-                            type="number" label="Min. # of shares"
-                            defaultValue={1}
-                            inputProps={{
-                                min: 1,
-                                step: "any", ...register("min_shares", {required: 'This field is required'})
-                            }}
-                            error={!!errors.min_shares}
-                            helperText={errors.min_shares?.message}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            type="number" label="Max. # of shares"
-                            inputProps={{min: 0, step: "any", ...register("max_shares")}}
-                            error={!!errors.max_shares}
-                            helperText={errors.max_shares?.message}
-                        />
                     </Grid>
 
                     <Grid item xs={12} sx={{textAlign: "right"}}>
