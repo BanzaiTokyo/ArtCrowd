@@ -1,13 +1,28 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {Button, FormControlLabel, Grid, Radio, RadioGroup, Slider, TextField, Typography} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    Fade,
+    FormControlLabel,
+    Grid,
+    IconButton,
+    Radio,
+    RadioGroup,
+    Slider,
+    TextField,
+    Typography
+} from "@mui/material";
+import InfoIcon from '@mui/icons-material/Info';
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch} from "../../utils";
 import dayjs from "dayjs";
 import {grey} from '@mui/material/colors';
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {TransitionGroup} from 'react-transition-group';
 
 interface INewProject {
     title: string
@@ -19,6 +34,8 @@ interface INewProject {
     max_shares: number | null
     royalty_pct: number | null
 }
+
+const VerticalSpacer = <Box sx={{minHeight: '2rem'}}>&nbsp;</Box>;
 
 const royaltiesMarks = [
     {
@@ -94,6 +111,8 @@ const CreateProject = () => {
     const [deadlineRadiobuttonValue, setDeadlineRadiobuttonValue] = useState("2");
 
     const [isCustomDeadline, setIsCustomDeadline] = useState(false);
+    const [isHelpNewProjectVisible, setIsHelpNewProjectVisible] = useState(false);
+    const [isHelpDeadlineVisible, setIsHelpDeadlineVisible] = useState(false);
 
     const onSubmit: SubmitHandler<INewProject> = async (data) => {
         const formData = new FormData();
@@ -163,25 +182,44 @@ const CreateProject = () => {
         setDeadlineRadiobuttonValue(value);
     }
 
-    const onRoyaltiesChange  = (event: Event, newValue: number | number[]) => {
-            if (typeof newValue === 'number') {
-                setValue('royalty_pct', newValue);
-            }
-        };
+    const onRoyaltiesChange = (event: Event, newValue: number | number[]) => {
+        if (typeof newValue === 'number') {
+            setValue('royalty_pct', newValue);
+        }
+    };
+
+    function toggleHelpNewProject() {
+        setIsHelpNewProjectVisible((prev) => !prev);
+    }
+
+    function toggleHelpDeadline() {
+        setIsHelpDeadlineVisible((prev) => !prev);
+    }
 
     return (
         <div>
             <form encType={'multipart/form-data'} onSubmit={handleSubmit(onSubmit)}>
-                <Grid container rowSpacing={3} columnSpacing={2} columns={12}>
+                <Grid container rowSpacing={3} columnSpacing={2}>
                     <Grid item xs={12}>
-                        <Typography variant={'h3'}>Start New Project</Typography>
-                        <Typography component={'p'}>You can describe your project here. After it is approved by the
-                            administration it will go live. Feel free to contact us if you need help or you would like
-                            us to guide you though the project creation process.</Typography>
+                        <Typography variant={'h4'}>Start New Project
+                            <IconButton color="primary" aria-label="help on creating a new project"
+                                        onClick={toggleHelpNewProject}>
+                                <InfoIcon/>
+                            </IconButton>
+                        </Typography>
 
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant={'h5'}>Describe your project</Typography>
+                        <TransitionGroup>
+                            {isHelpNewProjectVisible && <Fade in={isHelpNewProjectVisible}>
+                                <Alert
+                                    severity="info"
+                                    onClose={toggleHelpNewProject}>
+                                    <Typography component={'p'}>You can describe your project here. After it is
+                                        approved by the administration it will go live. Feel free to contact us if you
+                                        need help or you would like us to guide you though the project creation
+                                        process.</Typography></Alert>
+                            </Fade>}
+                        </TransitionGroup>
+
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
@@ -227,7 +265,21 @@ const CreateProject = () => {
 
                     {/* project deadline */}
                     <Grid item xs={12}>
-                        <Typography variant="h5"> Project deadline</Typography>
+                        <Typography variant="h5"> Project deadline
+                            <IconButton color="primary" aria-label="help on creating a new project"
+                                        onClick={toggleHelpDeadline}>
+                                <InfoIcon/>
+                            </IconButton>
+                        </Typography>
+                        <TransitionGroup>
+                            {isHelpDeadlineVisible && <Fade in={isHelpDeadlineVisible}>
+                                <Alert
+                                    severity="info"
+                                    onClose={toggleHelpDeadline}>
+                                    <Typography component={'p'}>Choose when you want the project to end.</Typography></Alert>
+                            </Fade>}
+                        </TransitionGroup>
+
                         <Controller name="deadline" control={control}
                                     rules={{required: 'This field is required'}} render={({field}) =>
                             <RadioGroup
@@ -293,8 +345,9 @@ const CreateProject = () => {
                         <div>The project will be open until <strong>{deadlineDate.format('MMMM DD, YYYY')}</strong>.
                             It needs to be approved by the administrator first.
                         </div>
-
                     </Grid>
+
+                    {VerticalSpacer}
 
                     <Grid item xs={12}>
                         <Typography variant="h5"> Shares</Typography>
@@ -316,25 +369,32 @@ const CreateProject = () => {
                         />
                     </Grid>
 
+                    {VerticalSpacer}
+
                     <Grid item xs={12}>
                         <Typography variant="h5">Royalties</Typography>
                         <Typography component={'p'}>When the project is finished and we mint NFTs for your fans this is
                             the royalties percentage you want those NFTs to have.</Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
 
                         <Controller name="royalty_pct" control={control}
-                                    // rules={{required: 'This field is required'}}
+                            // rules={{required: 'This field is required'}}
                                     render={({field}) =>
-                            <Slider
-                                aria-label="Temperature"
-                                defaultValue={5}
-                                valueLabelDisplay="off"
-                                onChange={onRoyaltiesChange}
-                                // step={11}
-                                marks={royaltiesMarks}
-                                min={0}
-                                max={10}
-                            />}/>
+                                        <Slider
+                                            aria-label="Temperature"
+                                            defaultValue={5}
+                                            valueLabelDisplay="off"
+                                            onChange={onRoyaltiesChange}
+                                            // step={11}
+                                            marks={royaltiesMarks}
+                                            min={0}
+                                            max={10}
+                                        />}/>
                     </Grid>
+
+                    {VerticalSpacer}
 
                     <Grid item xs={12}>
                         <TextField
