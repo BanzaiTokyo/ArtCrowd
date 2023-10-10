@@ -55,12 +55,22 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
         return data
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectBriefSerializer(serializers.ModelSerializer):
     artist = UserSerializer(read_only=True)
     presenter = UserSerializer(read_only=True)
     last_update = ProjectUpdateSerializer(read_only=True)
-    sorted_shares = ShareAsNestedObj(many=True, read_only=True)
     shares_num = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.Project
+        fields = ['id', 'title', 'description', 'image', 'created_on', 'deadline',
+                  'share_price', 'min_shares', 'max_shares', 'shares_num',
+                  'royalty_pct', 'artist', 'presenter', 'last_update',
+                  ]
+
+
+class ProjectSerializer(ProjectBriefSerializer):
+    sorted_shares = ShareAsNestedObj(many=True, read_only=True)
     shares_sum = serializers.DecimalField(decimal_places=6, max_digits=16, read_only=True)
     can_post_update = serializers.SerializerMethodField()
     can_buy_shares = serializers.SerializerMethodField()
@@ -73,16 +83,14 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Project
-        fields = ['id', 'title', 'description', 'image', 'created_on', 'deadline',
-                  'share_price', 'min_shares', 'max_shares', 'shares_num', 'shares_sum', 'sorted_shares',
-                  'royalty_pct', 'artist', 'presenter', 'last_update',
-                  'can_post_update', 'can_buy_shares']
+        fields = ProjectBriefSerializer.Meta.fields + [
+                    'shares_sum', 'sorted_shares', 'can_post_update', 'can_buy_shares']
 
 
 class ProjectListSerializer(serializers.Serializer):
-    projects = ProjectSerializer(many=True)
-    gallery_projects = ProjectSerializer(many=True)
-    supported_projects = ProjectSerializer(many=True)
+    projects = ProjectBriefSerializer(many=True)
+    gallery_projects = ProjectBriefSerializer(many=True)
+    supported_projects = ProjectBriefSerializer(many=True)
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):

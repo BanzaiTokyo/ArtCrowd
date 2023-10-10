@@ -10,9 +10,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken import views as auth_views
 from rest_framework.throttling import ScopedRateThrottle
-from rest_framework.filters import BaseFilterBackend
+from rest_framework.filters import OrderingFilter
 import django_filters
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from . import models, serializers, blockchain
 
@@ -54,7 +53,7 @@ class ProfileView(generics.views.APIView):
             'projects': models.Project.objects.filter(artist=request.user).all(),
             'gallery_projects': models.Project.objects.filter(presenter=request.user).all(),
             'supported_projects': models.Project.objects.filter(shares__patron_id=request.user.id)
-                                        .annotate(share_count=Count('shares__id'))
+                                        .annotate(shares_num=Count('shares__id'))
         }
         serializer = serializers.ProjectListSerializer(data, context={'request': request})
         return Response(serializer.data)
@@ -77,9 +76,10 @@ class ProjectsList(generics.ListAPIView):
             model = models.Project
             fields = ['status', 'artist__username']
 
-    queryset = models.Project.objects.all()
-    serializer_class = serializers.ProjectSerializer
+    queryset = models.Project.objects.annotate(shares_num=Count('shares__id')).all()
+    serializer_class = serializers.ProjectBriefSerializer
     filterset_class = OpenFilter
+    filter_backends = [OrderingFilter]
 
 
 class ProjectDetail(generics.RetrieveAPIView):
