@@ -25,6 +25,7 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
 import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 interface INewProject {
     title: string
@@ -226,6 +227,7 @@ const CreateProject = () => {
         <div>
             <form encType={'multipart/form-data'} onSubmit={handleSubmit(onSubmit)}>
                 <Grid container rowSpacing={3} columnSpacing={2}>
+
                     <Grid item xs={12}>
                         <Typography variant={'h4'}>Start New Project
                             <IconButton color="primary" aria-label="help on creating a new project"
@@ -245,8 +247,34 @@ const CreateProject = () => {
                                         process.</Typography></Alert>
                             </Fade>}
                         </TransitionGroup>
-
                     </Grid>
+
+                    {/*Image*/}
+                    <Grid item xs={12} >
+                        <Button component="label" variant="outlined" startIcon={<CloudUploadIcon/>}>
+                            Upload preview of your project
+                            <Controller name="image" control={control} rules={{required: 'Image is required'}}
+                                        render={() =>
+                                            <input
+                                                name="image"
+                                                type="file" accept="image/*" style={{display: 'none'}} id="image-input"
+                                                onChange={drawPickedImage}
+                                            />
+                                        }/>
+                        </Button>
+                    </Grid>
+
+                    <Grid item xs={12} sx={{marginBottom: "1rem"}}>
+
+                    {imageUrl && <img src={imageUrl as string} alt="Uploaded Project Preview"
+                                          style={{ maxWidth: '100%'}}/>}
+                        {errors.image && (
+                            <Typography variant="caption" color="error">
+                                {errors.image.message}
+                            </Typography>
+                        )}
+                    </Grid>
+
                     <Grid item xs={12}>
                         <TextField
                             label="Title" fullWidth
@@ -264,29 +292,6 @@ const CreateProject = () => {
                             error={!!errors.description}
                             helperText={errors.description?.message}
                         />
-                    </Grid>
-
-                    <Grid item xs={12} sx={{marginBottom: "1rem"}}>
-                        <label htmlFor="image-input" style={{display: "block"}}>
-                            <Controller name="image" control={control} rules={{required: 'Image is required'}}
-                                        render={({field}) =>
-                                            <input
-                                                name="image"
-                                                type="file" accept="image/*" style={{display: 'none'}} id="image-input"
-                                                onChange={drawPickedImage}
-                                            />
-                                        }/>
-                            <Button variant="outlined" component="span">
-                                Select an Image
-                            </Button>
-                        </label>
-                        {imageUrl && <img src={imageUrl as string} alt="Uploaded Project Preview"
-                                          style={{paddingLeft: "1em", maxHeight: 200}}/>}
-                        {errors.image && (
-                            <Typography variant="caption" color="error">
-                                {errors.image.message}
-                            </Typography>
-                        )}
                     </Grid>
 
                     {/* project deadline */}
