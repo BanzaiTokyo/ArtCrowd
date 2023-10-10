@@ -24,7 +24,7 @@ import {grey} from '@mui/material/colors';
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
-import {API_BASE_URL} from "../../Constants";
+import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
 
 interface INewProject {
     title: string
@@ -139,7 +139,7 @@ const CreateProject = () => {
             } else if (!!data[key]) formData.append(key, data[key]);
         }
         try {
-            const response = await fetchWithAuth(API_BASE_URL + 'project/create', {
+            const response = await fetchWithAuth(API_BASE_URL + PROJECT_ENDPOINT + '/create', {
                 method: 'POST',
                 body: formData,
                 headers: {
