@@ -372,6 +372,10 @@ const CreateProject = () => {
                     {VerticalSpacer}
 
                     <Grid item xs={12}>
+                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                            <Typography variant="overline">Once you finish your project:</Typography></Box>
+                    </Grid>
+                    <Grid item xs={12}>
                         <Typography variant="h5">Royalties</Typography>
                         <Typography component={'p'}>When the project is finished and we mint NFTs for your fans this is
                             the royalties percentage you want those NFTs to have.</Typography>
