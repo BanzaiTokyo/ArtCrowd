@@ -431,25 +431,8 @@ const CreateProject = () => {
 
                         {isAdditionalOptionsVisible && <Box sx={{borderTop: 1, borderColor: 'divider'}}>
 
+                            <br/>
                             <Grid container rowSpacing={3} columnSpacing={2}>
-                                <Grid item xs={12}>
-                                    <TransitionGroup>
-                                        {isHelpReserveVisible && <Fade in={isHelpReserveVisible}>
-                                            <div>
-                                                <br/>
-                                                <Alert
-                                                    severity="info"
-                                                    onClose={toggleHelpReserve}
-                                                >
-                                                    <Typography component={'p'}>The minimum shares that need to be sold
-                                                        for the project to be successful. If less than reserved number
-                                                        of shares is sold by the deadline, the NFT will not be minted
-                                                        and distributed to the patrons. Instead the funds will be
-                                                        refunded to them.</Typography>
-                                                </Alert></div>
-                                        </Fade>}
-                                    </TransitionGroup>
-                                </Grid>
 
                                 <Grid item xs={12}>
                                     {/*TODO: validate to allow only int > 0*/}
@@ -472,22 +455,25 @@ const CreateProject = () => {
                                         error={!!errors.min_shares}
                                         helperText={errors.min_shares?.message}
                                     />
-                                </Grid>
 
-                                <Grid item xs={12}>
-                                    <TransitionGroup>
-                                        {isHelpMaxSharesVisible && <Fade in={isHelpMaxSharesVisible}>
-                                            <div>
-                                                <br/>
-                                                <Alert
-                                                    severity="info"
-                                                    onClose={toggleHelpMaxShares}
-                                                >
-                                                    <Typography component={'p'}>After reaching this number, no more
-                                                        shares will be sold.</Typography>
-                                                </Alert></div>
-                                        </Fade>}
-                                    </TransitionGroup>
+
+                                        <TransitionGroup>
+                                            {isHelpReserveVisible && <Fade in={isHelpReserveVisible}>
+                                                <div>
+                                                    <br/>
+                                                    <Alert
+                                                        severity="info"
+                                                        onClose={toggleHelpReserve}
+                                                    >
+                                                        <Typography component={'p'}>The minimum shares that need to be sold
+                                                            for the project to be successful. If less than reserved number
+                                                            of shares is sold by the deadline, the NFT will not be minted
+                                                            and distributed to the patrons. Instead the funds will be
+                                                            refunded to them.</Typography>
+                                                    </Alert></div>
+                                            </Fade>}
+                                        </TransitionGroup>
+
                                 </Grid>
 
                                 <Grid item xs={12}>
@@ -507,7 +493,22 @@ const CreateProject = () => {
                                         error={!!errors.max_shares}
                                         helperText={errors.max_shares?.message}
                                     />
+
+                                    <TransitionGroup>
+                                        {isHelpMaxSharesVisible && <Fade in={isHelpMaxSharesVisible}>
+                                            <div>
+                                                <br/>
+                                                <Alert
+                                                    severity="info"
+                                                    onClose={toggleHelpMaxShares}
+                                                >
+                                                    <Typography component={'p'}>After reaching this number, no more
+                                                        shares will be sold.</Typography>
+                                                </Alert></div>
+                                        </Fade>}
+                                    </TransitionGroup>
                                 </Grid>
+
                             </Grid>
                         </Box>}
                     </Grid>
