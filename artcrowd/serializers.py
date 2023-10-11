@@ -74,7 +74,6 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
 class ProjectSerializer(ProjectBriefSerializer):
     image = serializers.ImageField(read_only=True)
     sorted_shares = ShareAsNestedObj(many=True, read_only=True)
-    shares_sum = serializers.DecimalField(decimal_places=6, max_digits=16, read_only=True)
     can_post_update = serializers.SerializerMethodField()
     can_buy_shares = serializers.SerializerMethodField()
 
@@ -104,7 +103,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     deadline = serializers.DateTimeField(
         validators=[MinValueValidator(datetime.now(tz=timezone.utc) + timedelta(days=1))]
     )
-    share_price = serializers.DecimalField(min_value=0.1, max_digits=12, decimal_places=2)
+    share_price = serializers.IntegerField(min_value=1)
     min_shares = serializers.IntegerField(required=False, min_value=1)
     max_shares = serializers.IntegerField(required=False, min_value=1)
 
@@ -115,8 +114,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         if min_shares is not None and max_shares is not None:
             if max_shares < min_shares:
                 raise serializers.ValidationError({"max_shares": ["Max shares must be greater than min shares"]})
-
-        data['share_price'] = data['share_price'] * 1_000_000
 
         return data
 

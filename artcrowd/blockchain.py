@@ -29,7 +29,7 @@ def update_project_status(project: models.Model):
     try:
         contract.storage['projects'][project.id]
     except KeyError:
-        ops.append(contract.create_project(project.id, project.share_price))
+        ops.append(contract.create_project(project.id, project.share_price * 1_000_000))
     ops.append(contract.update_project_status(project.status, project.id))
     tezos.bulk(*ops).send(min_confirmations=0)
 

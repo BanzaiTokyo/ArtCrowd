@@ -29,7 +29,7 @@ class Project(models.Model):
         (REJECTED, REJECTED), (EXPIRED, EXPIRED), (CLOSED, CLOSED)
     ))
 
-    share_price = models.DecimalField(decimal_places=6, max_digits=16)
+    share_price = models.IntegerField()
     min_shares = models.IntegerField(null=True, blank=True)
     max_shares = models.IntegerField(null=True, blank=True)
     royalty_pct = models.IntegerField(blank=True, default=0)
