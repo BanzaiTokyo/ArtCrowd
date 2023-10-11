@@ -24,7 +24,7 @@ import {grey} from '@mui/material/colors';
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
-import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
+import {API_BASE_URL, PROJECT_ENDPOINT, SITE_NAME} from "../../Constants";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 interface INewProject {
@@ -179,7 +179,9 @@ const CreateProject = () => {
     };
 
     if (!token)
-        return <div>Please sign in with a wallet</div>;
+        return <><p>Are you an artist? Please  <a href={'/'}>sign in with a wallet</a> to create a new {SITE_NAME} project.</p>
+            <p>Or check out our <a href={'/'}>current projects</a>.</p>
+        </>;
 
     function onDeadlineRadioChange(_event: React.ChangeEvent, value: string) {
         if (value === 'custom') {
@@ -250,7 +252,7 @@ const CreateProject = () => {
                     </Grid>
 
                     {/*Image*/}
-                    <Grid item xs={12} >
+                    <Grid item xs={12}>
                         <Button component="label" variant="outlined" startIcon={<CloudUploadIcon/>}>
                             Upload preview of your project
                             <Controller name="image" control={control} rules={{required: 'Image is required'}}
@@ -266,8 +268,8 @@ const CreateProject = () => {
 
                     <Grid item xs={12} sx={{marginBottom: "1rem"}}>
 
-                    {imageUrl && <img src={imageUrl as string} alt="Uploaded Project Preview"
-                                          style={{ maxWidth: '100%'}}/>}
+                        {imageUrl && <img src={imageUrl as string} alt="Uploaded Project Preview"
+                                          style={{maxWidth: '100%'}}/>}
                         {errors.image && (
                             <Typography variant="caption" color="error">
                                 {errors.image.message}

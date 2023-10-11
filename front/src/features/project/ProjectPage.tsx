@@ -22,7 +22,7 @@ const ProjectPage: React.FC = () => {
 
     return project ? <>
         <div style={{float: "left"}}>
-            <img src={project.image} alt={`project ${projectId} preview`}/>
+            <img src={project.image} alt={`project ${projectId} preview`} style={{ maxWidth: '100%'}}/>
         </div>
         <div>
             <h1>{project.title}</h1>
@@ -45,7 +45,7 @@ const ProjectPage: React.FC = () => {
 
             {project.last_update && <>
                 <h2>Update from {project.last_update.created_on}</h2>
-                {project.last_update.image && <img src={project.last_update.image} alt="update image"/>}
+                {project.last_update.image && <img src={project.last_update.image} alt="project update"/>}
                 {project.last_update.description}
             </>}
             {project.can_post_update && <ProjectUpdateForm projectId={projectId}/>}
@@ -61,7 +61,6 @@ const ProjectPage: React.FC = () => {
                 </div>
             })}
         </div>
-        <div style={{clear: "both"}}></div>
     </> : <>Project not found</>;
 };
 
