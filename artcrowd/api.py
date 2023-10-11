@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken import views as auth_views
 from rest_framework.throttling import ScopedRateThrottle
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, BaseFilterBackend
 import django_filters
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from . import models, serializers, blockchain
@@ -62,24 +62,27 @@ class ProfileView(generics.views.APIView):
 class ProjectsList(generics.ListAPIView):
     """All projects"""
 
-    class OpenFilter(django_filters.FilterSet):
-        open = django_filters.BooleanFilter(method='filter_open')
-        artist = django_filters.CharFilter(field_name='artist__username')
+    class OpenFilterBackend(BaseFilterBackend):
+        def filter_queryset(self, request, queryset, view):
+            open_param = request.query_params.get('open')
+            artist_param = request.query_params.get('artist')
 
-        def filter_open(self, queryset, name, value, *args, **kwargs):
-            if value:
-                return queryset.filter(status__in=(models.Project.APPROVED_BY_ADMIN, models.Project.APPROVED_BY_ARTIST))
-            else:
-                return queryset.exclude(status__in=(models.Project.CLOSED, models.Project.REJECTED))
+            if open_param:
+                if open_param in (True, "True", "true", "1"):
+                    queryset = queryset.filter(
+                        status__in=[models.Project.APPROVED_BY_ADMIN, models.Project.APPROVED_BY_ARTIST])
+                elif open_param in (False, "False", "false", "0"):
+                    queryset = queryset.exclude(status__in=[models.Project.CLOSED, models.Project.REJECTED])
 
-        class Meta:
-            model = models.Project
-            fields = ['status', 'artist__username']
+            if artist_param:
+                queryset = queryset.filter(artist__username=artist_param)
+
+            return queryset
 
     queryset = models.Project.objects.annotate(shares_num=Count('shares__id')).all()
     serializer_class = serializers.ProjectBriefSerializer
-    filterset_class = OpenFilter
-    filter_backends = [OrderingFilter]
+    #filterset_class = OpenFilter
+    filter_backends = [OpenFilterBackend, OrderingFilter]
 
 
 class ProjectDetail(generics.RetrieveAPIView):

@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'drf_spectacular',
-    'sslserver',
+    #'sslserver',
+    'sorl.thumbnail',
     'artcrowd',
 ]
 
@@ -137,6 +138,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+THUMBNAIL_COLORSPACE = None
+THUMBNAIL_PRESERVE_FORMAT = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field

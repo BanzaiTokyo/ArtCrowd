@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.utils.functional import cached_property
 from django.db import models
+from sorl.thumbnail import ImageField
 from . import settings
 
 
@@ -18,7 +19,7 @@ class Project(models.Model):
     CLOSED = 'closed'
     title = models.CharField(max_length=1024)
     description = models.TextField()
-    image = models.ImageField(upload_to='projects/')
+    image = ImageField(upload_to='projects/')
     artist = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, related_name='artist')
     presenter = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name='presenter')
     created_on = models.DateTimeField(auto_now_add=True)

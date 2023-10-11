@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 from . import models
 
 
@@ -58,6 +59,7 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
 class ProjectBriefSerializer(serializers.ModelSerializer):
     artist = UserSerializer(read_only=True)
     presenter = UserSerializer(read_only=True)
+    image = HyperlinkedSorlImageField('100', read_only=True)
     last_update = ProjectUpdateSerializer(read_only=True)
     shares_num = serializers.IntegerField(read_only=True)
 
@@ -70,6 +72,7 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(ProjectBriefSerializer):
+    image = serializers.ImageField(read_only=True)
     sorted_shares = ShareAsNestedObj(many=True, read_only=True)
     shares_sum = serializers.DecimalField(decimal_places=6, max_digits=16, read_only=True)
     can_post_update = serializers.SerializerMethodField()
