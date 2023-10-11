@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import MaterialReactTable, {MRT_ColumnDef, MRT_SortingState} from "material-react-table";
 import {Avatar, Typography, Grid, Link} from "@mui/material";
-import {formatTez} from "../../utils";
 import {API_BASE_URL} from "../../Constants";
 import {ApiResponse} from "../../models/ApiResponse";
 import {useParams} from "react-router-dom";
@@ -78,8 +77,7 @@ const Home = () => {
             {
                 id: 'share_price',
                 header: 'Share Price, Tez',
-                accessorKey: 'share_price',
-                Cell: ({renderedCellValue, row}) => formatTez(row.original.share_price)
+                accessorKey: 'share_price'
             },
             {
                 id: 'shares_num',

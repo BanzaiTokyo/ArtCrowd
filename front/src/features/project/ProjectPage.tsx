@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useParams,} from 'react-router-dom';
 import {useAuth} from "../../components/AuthContext";
-import {configureFetch, formatTez} from "../../utils";
+import {configureFetch} from "../../utils";
 import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
 import BuySharesForm from "../../components/BuySharesForm";
 import ProjectUpdateForm from "./ProjectUpdateForm";
@@ -33,7 +33,7 @@ const ProjectPage: React.FC = () => {
             <div>Deadline: {project.deadline}</div>
 
             <h2>Shares</h2>
-            <div>price per share: {formatTez(project.share_price)} Tez</div>
+            <div>price per share: {project.share_price} Tez</div>
             <div>purchased: {project.shares_sum}</div>
             <div>reserve: {project.min_shares}</div>
 
