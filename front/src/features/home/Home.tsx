@@ -29,7 +29,7 @@ const Home = () => {
         const searchArtist = artist ? `&artist=${artist}` : "";
 
         setIsLoading(true);
-        fetch(`${API_BASE_URL}projects?open=1&offset=${pagination.pageIndex * rowsPerPage}${orderBy}${searchArtist}`)
+        fetch(`${API_BASE_URL}projects?open=any&offset=${pagination.pageIndex * rowsPerPage}${orderBy}${searchArtist}`)
             .then(response => response.json())
             .then((response: ApiResponse<Record<string, any>>) => {
                 setTotalRecords(response.count);

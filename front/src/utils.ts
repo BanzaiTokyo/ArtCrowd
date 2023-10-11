@@ -5,6 +5,13 @@ export function cutTheMiddle(str: string) {
     return str;
 }
 
+export function cutTheTail(str: string, len: number) {
+    if (str != null) {
+        return str.substr(0, len) + (str.length > len ? '...' : '');
+    }
+    return str;
+}
+
 export function formatTez(amount: number): string {
     const inTez = Math.abs(amount / 1000000);
     if (amount === 0) {
