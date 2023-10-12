@@ -16,7 +16,7 @@ const ProjectPage: React.FC = () => {
         if (projectId && (token != null)) {
             fetchWithAuth(`${API_BASE_URL}${PROJECT_ENDPOINT}/${projectId}`)
                 .then(response => {
-                    return response.ok ? response.json() : new Promise(resolve=>() => null)
+                    return response.ok ? response.json() : new Promise(reject =>() => null)
                 })
                 .then((project) => setProject(project))
         }

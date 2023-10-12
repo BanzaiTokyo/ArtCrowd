@@ -23,7 +23,7 @@ export default function ProjectCardsList() {
         const orderBy: string = getOrderUrlSearchParam();
 
         setIsLoading(true);
-        fetch(`${API_BASE_URL}projects?open=any&offset=${(page as number) * rowsPerPage}&limit=${rowsPerPage*2}${orderBy}${searchArtist}`)
+        fetch(`${API_BASE_URL}projects?open=any&offset=${(page as number) * rowsPerPage}&limit=${rowsPerPage}${orderBy}${searchArtist}`)
             .then(response => response.json())
             .then((response: ApiResponse<Record<string, any>>) => {
                 setTotalRecords(response.count);

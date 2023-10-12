@@ -26,6 +26,9 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
 import {API_BASE_URL, PROJECT_ENDPOINT, SITE_NAME} from "../../Constants";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import {MUIRichTextEditor} from '@agbishop/mui-rte';
+import { stateToHTML } from 'draft-js-export-html';
 
 interface INewProject {
     title: string
@@ -40,52 +43,11 @@ interface INewProject {
 
 const VerticalSpacer = <Box sx={{minHeight: '2rem'}}>&nbsp;</Box>;
 
-const royaltiesMarks = [
-    {
-        value: 0,
-        label: '0',
-    },
-    {
-        value: 1,
-        label: '1%',
-    },
-    {
-        value: 2,
-        label: '2%',
-    },
-    {
-        value: 3,
-        label: '3%',
-    },
-    {
-        value: 4,
-        label: '4%',
-    },
-    {
-        value: 5,
-        label: '5%',
-    },
-    {
-        value: 6,
-        label: '6%',
-    },
-    {
-        value: 7,
-        label: '7%',
-    },
-    {
-        value: 8,
-        label: '8%',
-    },
-    {
-        value: 9,
-        label: '9%',
-    },
-    {
-        value: 10,
-        label: '10%',
-    },
-];
+const royaltiesMarks = Array.from({ length: 11 }, (_, index) => ({
+    value: index,
+    label: `${index}%`
+}));
+
 
 const CreateProject = () => {
     const {
@@ -225,6 +187,18 @@ const CreateProject = () => {
         setIsHelpMaxSharesVisible((prev) => !prev);
     }
 
+    const theme = createTheme()
+    /*
+    import {EditorState, convertFromHTML, ContentState, convertToRaw} from 'draft-js';
+    const sampleMarkup =
+      '<b>Bold text</b>, <i>Italic text</i><br/ ><br />' +
+      '<a href="http://www.facebook.com">Example link</a>';
+    const blocksFromHTML = convertFromHTML(sampleMarkup);
+    const MUIRichTextEditorDefaultValue = JSON.stringify(convertToRaw(EditorState.createWithContent(
+        ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
+      ).getCurrentContent()));
+    */
+
     return (
         <div>
             <form encType={'multipart/form-data'} onSubmit={handleSubmit(onSubmit)}>
@@ -287,13 +261,28 @@ const CreateProject = () => {
                     </Grid>
 
                     <Grid item xs={12}>
-                        <TextField
-                            placeholder={'Feel free to go into details as much as you like. Tell your fans what you\'d like to create and how you will get there.'}
-                            label="Description" multiline minRows={3} fullWidth
-                            inputProps={register("description", {required: 'This field is required'})}
-                            error={!!errors.description}
-                            helperText={errors.description?.message}
-                        />
+                      <Controller
+                        name="description" control={control} rules={{required: "This field is required",}}
+                        render={({ field }) => (
+                            <ThemeProvider theme={theme}>
+                              <Box px={2} sx={{border: `1px solid ${errors.description ? theme.palette.error.main : theme.palette.grey[400]}`, borderRadius: '4px', minHeight: '10em'}}>
+                                <MUIRichTextEditor
+                                  label="Feel free to go into details as much as you like. Tell your fans what you'd like to create and how you will get there."
+                                  controls={['title', 'bold', 'italic', 'underline', 'numberList', 'bulletList', 'quote', 'code', 'clear', 'strikethrough', 'highlight']}
+                                  onChange={(state: any) => {
+                                    const content = state.getCurrentContent();
+                                    field.onChange(content.hasText() ? stateToHTML(content) : '');
+                                  }}
+                                />
+                              </Box>
+                              {errors.description && (
+                                <Typography variant="caption" color="error" mx={2}>
+                                  {errors.description.message}
+                                </Typography>
+                              )}
+                            </ThemeProvider>
+                        )}
+                      />
                     </Grid>
 
                     {/* project deadline */}

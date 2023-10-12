@@ -59,3 +59,9 @@ export const configureFetch = (token: string | null) => {
     return fetch(url, fetchOptions);
   };
 };
+
+export function extractPlainText(htmlString: string) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  return doc.body.textContent;
+}

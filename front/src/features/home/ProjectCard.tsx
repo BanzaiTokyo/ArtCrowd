@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {DESCRIPTION_PREVIEW_LENGTH} from "../../Constants";
+import {extractPlainText} from "../../utils";
 
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
@@ -89,10 +90,10 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Re
                 </CardContent>
                 <CardActions sx={{paddingLeft: "16px"}}>
                         {!expanded && <TruncatedText variant="body2" color="text.secondary" lines={1}>
-                            {project.description}
+                            {extractPlainText(project.description)}
                         </TruncatedText>}
                         <Collapse sx={{padding: 0, textAlign: "justify"}} in={expanded} timeout="auto" unmountOnExit>
-                            {project.description}
+                            <div dangerouslySetInnerHTML={{ __html: project.description }} />
                         </Collapse>
                         <ExpandMore
                             expand={expanded}
