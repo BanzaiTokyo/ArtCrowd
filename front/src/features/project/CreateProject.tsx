@@ -545,10 +545,9 @@ const CreateProject = () => {
                                     severity="info"
                                     onClose={toggleHelpNFTDescription}>
                                     <Typography component={'p'}>When you finish your art project, we will mint a
-                                        multiple editions
-                                        NFT and a copy will be sent to your fans. 1 etition for 1 share purchased. This
-                                        description
-                                        is what will go to the token's metadata.</Typography></Alert>
+                                        multiple edition NFT and a copy will be sent to your fans. 1 edition for 1 share
+                                        purchased. This description is what will go to the token's
+                                        metadata.</Typography></Alert>
                             </Fade>}
                         </TransitionGroup>
                         {isHelpNftDescriptionVisible && <br/>}
