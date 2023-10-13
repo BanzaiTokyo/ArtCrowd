@@ -26,13 +26,14 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
 import {API_BASE_URL, PROJECT_ENDPOINT, SITE_NAME} from "../../Constants";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import {createTheme, ThemeProvider} from '@mui/material/styles'
 import {MUIRichTextEditor} from '@agbishop/mui-rte';
-import { stateToHTML } from 'draft-js-export-html';
+import {stateToHTML} from 'draft-js-export-html';
 
 interface INewProject {
     title: string
     description: string
+    nftDescription: string
     image: File
     deadline: dayjs.Dayjs
     share_price: number
@@ -43,7 +44,7 @@ interface INewProject {
 
 const VerticalSpacer = <Box sx={{minHeight: '2rem'}}>&nbsp;</Box>;
 
-const royaltiesMarks = Array.from({ length: 11 }, (_, index) => ({
+const royaltiesMarks = Array.from({length: 11}, (_, index) => ({
     value: index,
     label: `${index}%`
 }));
@@ -52,6 +53,7 @@ const royaltiesMarks = Array.from({ length: 11 }, (_, index) => ({
 const CreateProject = () => {
     const {
         register,
+        watch,
         getValues,
         control,
         setValue,
@@ -65,6 +67,9 @@ const CreateProject = () => {
             royalty_pct: 5,
         }
     })
+
+    const watchProjectTitle = watch("title");
+
     const [imageUrl, setImageUrl] = useState('');
 
     const [deadlineDate, setDeadlineDate] = useState(dayjs().add(2, 'month'));
@@ -78,6 +83,7 @@ const CreateProject = () => {
     const [isHelpSharesVisible, setIsHelpSharesVisible] = useState(false);
     const [isHelpReserveVisible, setIsHelpReserveVisible] = useState(false);
     const [isHelpMaxSharesVisible, setIsHelpMaxSharesVisible] = useState(false);
+    const [isHelpNftDescriptionVisible, setIsHelpNftDescriptionVisible] = useState(false);
 
     const [isAdditionalOptionsVisible, setIsAdditionalOptionsVisible] = useState(false);
 
@@ -141,7 +147,8 @@ const CreateProject = () => {
     };
 
     if (!token)
-        return <><p>Are you an artist? Please  <a href={'/'}>sign in with a wallet</a> to create a new {SITE_NAME} project.</p>
+        return <><p>Are you an artist? Please <a href={'/'}>sign in with a wallet</a> to create a
+            new {SITE_NAME} project.</p>
             <p>Or check out our <a href={'/'}>current projects</a>.</p>
         </>;
 
@@ -185,6 +192,10 @@ const CreateProject = () => {
 
     function toggleHelpMaxShares() {
         setIsHelpMaxSharesVisible((prev) => !prev);
+    }
+
+    function toggleHelpNFTDescription() {
+        setIsHelpNftDescriptionVisible((prev) => !prev);
     }
 
     const theme = createTheme()
@@ -242,8 +253,9 @@ const CreateProject = () => {
 
                     <Grid item xs={12} sx={{marginBottom: "1rem"}}>
 
-                        {imageUrl && <img src={imageUrl as string} alt="Uploaded Project Preview"
-                                          style={{maxWidth: '100%'}}/>}
+                        {imageUrl && <img src={imageUrl as string}
+                                          alt="Uploaded Project Preview"
+                                          style={{maxWidth: '100%', maxHeight: '900px'}}/>}
                         {errors.image && (
                             <Typography variant="caption" color="error">
                                 {errors.image.message}
@@ -261,28 +273,32 @@ const CreateProject = () => {
                     </Grid>
 
                     <Grid item xs={12}>
-                      <Controller
-                        name="description" control={control} rules={{required: "This field is required",}}
-                        render={({ field }) => (
-                            <ThemeProvider theme={theme}>
-                              <Box px={2} sx={{border: `1px solid ${errors.description ? theme.palette.error.main : theme.palette.grey[400]}`, borderRadius: '4px', minHeight: '10em'}}>
-                                <MUIRichTextEditor
-                                  label="Feel free to go into details as much as you like. Tell your fans what you'd like to create and how you will get there."
-                                  controls={['title', 'bold', 'italic', 'underline', 'numberList', 'bulletList', 'quote', 'code', 'clear', 'strikethrough', 'highlight']}
-                                  onChange={(state: any) => {
-                                    const content = state.getCurrentContent();
-                                    field.onChange(content.hasText() ? stateToHTML(content) : '');
-                                  }}
-                                />
-                              </Box>
-                              {errors.description && (
-                                <Typography variant="caption" color="error" mx={2}>
-                                  {errors.description.message}
-                                </Typography>
-                              )}
-                            </ThemeProvider>
-                        )}
-                      />
+                        <Controller
+                            name="description" control={control} rules={{required: "This field is required",}}
+                            render={({field}) => (
+                                <ThemeProvider theme={theme}>
+                                    <Box px={2} sx={{
+                                        border: `1px solid ${errors.description ? theme.palette.error.main : theme.palette.grey[400]}`,
+                                        borderRadius: '4px',
+                                        minHeight: '10em'
+                                    }}>
+                                        <MUIRichTextEditor
+                                            label="Feel free to go into details as much as you like. Tell your fans what you'd like to create and how you will get there."
+                                            controls={['title', 'bold', 'italic', 'underline', 'numberList', 'bulletList', 'quote', 'code', 'clear', 'strikethrough']}
+                                            onChange={(state: any) => {
+                                                const content = state.getCurrentContent();
+                                                field.onChange(content.hasText() ? stateToHTML(content) : '');
+                                            }}
+                                        />
+                                    </Box>
+                                    {errors.description && (
+                                        <Typography variant="caption" color="error" mx={2}>
+                                            {errors.description.message}
+                                        </Typography>
+                                    )}
+                                </ThemeProvider>
+                            )}
+                        />
                     </Grid>
 
                     {/* project deadline */}
@@ -366,7 +382,6 @@ const CreateProject = () => {
                             </RadioGroup>}/>
 
                         <div>The project will be open until <strong>{deadlineDate.format('MMMM DD, YYYY')}</strong>.
-                            It needs to be approved by the administrator first.
                         </div>
                     </Grid>
 
@@ -446,22 +461,22 @@ const CreateProject = () => {
                                     />
 
 
-                                        <TransitionGroup>
-                                            {isHelpReserveVisible && <Fade in={isHelpReserveVisible}>
-                                                <div>
-                                                    <br/>
-                                                    <Alert
-                                                        severity="info"
-                                                        onClose={toggleHelpReserve}
-                                                    >
-                                                        <Typography component={'p'}>The minimum shares that need to be sold
-                                                            for the project to be successful. If less than reserved number
-                                                            of shares is sold by the deadline, the NFT will not be minted
-                                                            and distributed to the patrons. Instead the funds will be
-                                                            refunded to them.</Typography>
-                                                    </Alert></div>
-                                            </Fade>}
-                                        </TransitionGroup>
+                                    <TransitionGroup>
+                                        {isHelpReserveVisible && <Fade in={isHelpReserveVisible}>
+                                            <div>
+                                                <br/>
+                                                <Alert
+                                                    severity="info"
+                                                    onClose={toggleHelpReserve}
+                                                >
+                                                    <Typography component={'p'}>The minimum shares that need to be sold
+                                                        for the project to be successful. If less than reserved number
+                                                        of shares is sold by the deadline, the NFT will not be minted
+                                                        and distributed to the patrons. Instead the funds will be
+                                                        refunded to them.</Typography>
+                                                </Alert></div>
+                                        </Fade>}
+                                    </TransitionGroup>
 
                                 </Grid>
 
@@ -508,6 +523,45 @@ const CreateProject = () => {
                         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                             <Typography variant="overline">Once you finish your project:</Typography></Box>
                     </Grid>
+
+                    <Grid item xs={12}>
+                        <Typography variant="h5">NFT Title</Typography>
+                        <Typography component={'p'}>It will be the same as the project
+                            title <strong>{watchProjectTitle}</strong></Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Typography variant="h5">NFT Description
+                            <IconButton color="primary"
+                                        aria-label="help on project deadline"
+                                        onClick={toggleHelpNFTDescription}>
+                                <InfoIcon/>
+                            </IconButton>
+                        </Typography>
+
+                        <TransitionGroup>
+                            {isHelpNftDescriptionVisible && <Fade in={isHelpNftDescriptionVisible}>
+                                <Alert
+                                    severity="info"
+                                    onClose={toggleHelpNFTDescription}>
+                                    <Typography component={'p'}>When you finish your art project, we will mint a
+                                        multiple editions
+                                        NFT and a copy will be sent to your fans. 1 etition for 1 share purchased. This
+                                        description
+                                        is what will go to the token's metadata.</Typography></Alert>
+                            </Fade>}
+                        </TransitionGroup>
+                        {isHelpNftDescriptionVisible && <br/>}
+
+                        <TextField
+                            placeholder={'NFT description has no markup. This is the description of the token that we will mint at the end of the project. Everyone will see on NFT Maketplaces..'}
+                            label="NFT Description" multiline minRows={5} fullWidth
+                            inputProps={register("nftDescription", {required: 'This field is required'})}
+                            error={!!errors.description}
+                            helperText={errors.description?.message}
+                        />
+                    </Grid>
+
                     <Grid item xs={12}>
                         <Typography variant="h5">Royalties</Typography>
                         <Typography component={'p'}>When the project is finished and we mint NFTs for your fans this is
