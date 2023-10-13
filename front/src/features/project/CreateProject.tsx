@@ -545,9 +545,9 @@ const CreateProject = () => {
                                     severity="info"
                                     onClose={toggleHelpNFTDescription}>
                                     <Typography component={'p'}>When you finish your art project, we will mint a
-                                        multiple edition NFT and a copy will be sent to your fans. 1 edition for 1 share
-                                        purchased. This description is what will go to the token's
-                                        metadata.</Typography></Alert>
+                                        multiple edition NFT with the final image of your work. Copies will be sent to
+                                        your fans: 1 edition for 1 share purchased. This description is what will go to
+                                        the token's metadata.</Typography></Alert>
                             </Fade>}
                         </TransitionGroup>
                         {isHelpNftDescriptionVisible && <br/>}
@@ -564,7 +564,7 @@ const CreateProject = () => {
                     <Grid item xs={12}>
                         <Typography variant="h5">Royalties</Typography>
                         <Typography component={'p'}>When the project is finished and we mint NFTs for your fans this is
-                            the royalties percentage you want those NFTs to have.</Typography>
+                            the royalties percentage that we will put into the token's metadata.</Typography>
                     </Grid>
 
                     <Grid item xs={12}>
