@@ -30,7 +30,7 @@ const ProjectPage: React.FC = () => {
         </div>
         <div>
             <h1>{project.title}</h1>
-            <img src={project.artist.avatar} alt="avatar"/>
+            <img src={project.artist.avatar || ''} alt="avatar"/>
             <h2>{project.artist.username}</h2>
             {project.presenter && <>presented by <h2>{project.presenter.username}</h2></>}
             <div dangerouslySetInnerHTML={{__html: project.description}}/>

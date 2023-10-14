@@ -7,6 +7,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {DESCRIPTION_PREVIEW_LENGTH} from "../../Constants";
 import {extractPlainText} from "../../utils";
+import {Project} from "../../models/Project";
 
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
@@ -33,7 +34,7 @@ const TruncatedText = styled((props: any) => {
   textOverflow: 'ellipsis',
 }));
 
-export default function ProjectCard(props: { browsedArtist?: string, project: Record<string, any> }) {
+export default function ProjectCard(props: { browsedArtist?: string, project: Project }) {
     const {browsedArtist, project} = props;
     const [expanded, setExpanded] = React.useState(false);
 
@@ -47,7 +48,7 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Re
                 <CardContent sx={{display: 'flex'}}>
                     <Link href={`/${project.id}`} sx={{flex: '1', paddingTop: '0.5em'}}>
                         <CardMedia
-                            component="img" image={project.image} alt={project.token}
+                            component="img" image={project.image} alt={project.title}
                             sx={{height: 170, width: 170, objectFit: 'contain', objectPosition: 'top'}}
                         />
                     </Link>
@@ -58,9 +59,6 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Re
                             </TruncatedText>
                             {!browsedArtist && <Link href={`/artist/${project.artist.username}`} display="flex" underline="none" style={{marginTop: 8}}>
                                 <Avatar alt={project.artist.username} src={project.artist.avatar}></Avatar>
-                                {!!project.artist.avatar &&
-                                    <img src={project.artist.avatar} alt="{project.artist.username"
-                                         style={{width: 30}}/>}
                                 <Typography display="flex" m={1} alignItems="center">{project.artist.username}</Typography>
                             </Link>}
                         </Box>

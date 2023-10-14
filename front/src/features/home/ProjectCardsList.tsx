@@ -1,13 +1,14 @@
 import {Container, Grid, LinearProgress, Pagination, PaginationItem} from "@mui/material";
 import React, {useEffect, useState} from "react";
+import {Link, useParams} from "react-router-dom";
 import {API_BASE_URL} from "../../Constants";
 import ProjectCard from "./ProjectCard";
 import {ApiResponse} from "../../models/ApiResponse";
-import {Link, useParams} from "react-router-dom";
+import {Project} from "../../models/Project";
 
 export default function ProjectCardsList() {
     const {username: artist, page = 0} = useParams();
-    const [data, setData] = useState<Record<string, any>[]>([]);
+    const [data, setData] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(100);
     const [sorting, setSorting] = useState([{id: "deadline", desc: true}]);
@@ -25,7 +26,7 @@ export default function ProjectCardsList() {
         setIsLoading(true);
         fetch(`${API_BASE_URL}projects?open=any&offset=${(page as number) * rowsPerPage}&limit=${rowsPerPage}${orderBy}${searchArtist}`)
             .then(response => response.json())
-            .then((response: ApiResponse<Record<string, any>>) => {
+            .then((response: ApiResponse<Project>) => {
                 setTotalRecords(response.count);
                 setData(response.results);
                 setIsLoading(false);

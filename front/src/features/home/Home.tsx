@@ -4,10 +4,11 @@ import {Avatar, Typography, Grid, Link} from "@mui/material";
 import {API_BASE_URL} from "../../Constants";
 import {ApiResponse} from "../../models/ApiResponse";
 import {useParams} from "react-router-dom";
+import {Project} from "../../models/Project";
 
 const Home = () => {
     const {username: artist} = useParams();
-    const [data, setData] = useState<Record<string, any>[]>([]);
+    const [data, setData] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(100);
     const [sorting, setSorting] = useState<MRT_SortingState>([{id: "deadline", desc: true}]);
@@ -30,7 +31,7 @@ const Home = () => {
         setIsLoading(true);
         fetch(`${API_BASE_URL}projects?open=any&offset=${pagination.pageIndex * rowsPerPage}${orderBy}${searchArtist}`)
             .then(response => response.json())
-            .then((response: ApiResponse<Record<string, any>>) => {
+            .then((response: ApiResponse<Project>) => {
                 setTotalRecords(response.count);
                 setData(response.results);
                 setIsLoading(false);
