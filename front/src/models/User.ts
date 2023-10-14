@@ -1,5 +1,4 @@
-//TODO: complete interface
 export interface User {
-    wallet: string;
+    avatar: string | null;
     username: string;
 }
