@@ -33,7 +33,7 @@ import {stateToHTML} from 'draft-js-export-html';
 interface INewProject {
     title: string
     description: string
-    nftDescription: string
+    nft_description: string
     image: File
     deadline: dayjs.Dayjs
     share_price: number
@@ -266,7 +266,13 @@ const CreateProject = () => {
                     <Grid item xs={12}>
                         <TextField
                             label="Title" fullWidth
-                            inputProps={register("title", {required: 'This field is required'})}
+                            inputProps={{
+                                minLength: 5,
+                                maxLength: 100,
+                                ...register("title", {
+                                    required: 'This field is required',
+                                })
+                            }}
                             error={!!errors.title}
                             helperText={errors.title?.message}
                         />
@@ -453,7 +459,7 @@ const CreateProject = () => {
                                                 </IconButton>
                                             ,
                                             min: 1,
-                                            ...register("min_shares", {required: 'This field is required'})
+                                            ...register("min_shares", {required: 'This field is required', min: 1, max: 1000})
                                         }}
 
                                         error={!!errors.min_shares}
@@ -555,7 +561,7 @@ const CreateProject = () => {
                         <TextField
                             placeholder={'NFT description has no markup. This is the description of the token that we will mint at the end of the project. Everyone will see on NFT Maketplaces..'}
                             label="NFT Description" multiline minRows={5} fullWidth
-                            inputProps={register("nftDescription", {required: 'This field is required'})}
+                            inputProps={register("nft_description", {required: 'This field is required'})}
                             error={!!errors.description}
                             helperText={errors.description?.message}
                         />
