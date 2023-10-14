@@ -62,7 +62,7 @@ def m():
             #(project_id, share_price) = params
             assert not self.data.projects.contains(project_id), "project already exists"
             self.data.projects[project_id] = sp.record(
-                status='new', total_shares=0, share_price=share_price
+                status='open', total_shares=0, share_price=share_price
             )
 
         @sp.entrypoint
@@ -81,7 +81,7 @@ def m():
             assert num_shares > 0, "Shares must be greater than 0."
             assert self.data.projects.contains(project_id), "Project not found."
             project = self.data.projects[project_id]
-            assert not sp.set('new', 'rejected', 'expired', 'closed').contains(project.status), "Project is not open for participation"
+            assert project.status == 'open', "Project is not open for participation"
             nofee_amount = sp.split_tokens(project.share_price, num_shares, 1)
             total_amount = sp.split_tokens(nofee_amount, self.data.fee_pct, 100)
             assert sp.amount == total_amount, "Transaction amount must equal to share price * number of shares + service fee"

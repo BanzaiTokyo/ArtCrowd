@@ -1,8 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.urls import path
 from django.contrib.auth.models import Group
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, BadRequest
 from django.db.models import Count
+from django.utils import timezone
+from django.http import HttpResponse
+from django.conf import settings
 from rest_framework import generics, permissions, serializers as drf_serializers
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +14,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken import views as auth_views
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
-import django_filters
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from . import models, serializers, blockchain
 
@@ -69,10 +71,9 @@ class ProjectsList(generics.ListAPIView):
 
             if open_param:
                 if open_param in (True, "True", "true", "1"):
-                    queryset = queryset.filter(
-                        status__in=[models.Project.APPROVED_BY_ADMIN, models.Project.APPROVED_BY_ARTIST])
+                    queryset = queryset.filter(status=models.Project.OPEN)
                 elif open_param in (False, "False", "false", "0"):
-                    queryset = queryset.exclude(status__in=[models.Project.CLOSED, models.Project.REJECTED])
+                    queryset = queryset.exclude(status__in=[models.Project.COMPLETED, models.Project.SALE_CLOSED])
 
             if artist_param:
                 queryset = queryset.filter(artist__username=artist_param)
@@ -81,7 +82,6 @@ class ProjectsList(generics.ListAPIView):
 
     queryset = models.Project.objects.annotate(shares_num=Count('shares__id')).all()
     serializer_class = serializers.ProjectBriefSerializer
-    #filterset_class = OpenFilter
     filter_backends = [OpenFilterBackend, OrderingFilter]
 
 
@@ -106,6 +106,8 @@ class ProjectUpdate(generics.CreateAPIView):
 
         if self.request.user != project.artist and self.request.user != project.presenter:
             raise PermissionDenied('Only project artist or presenter can post updates')
+        if (timezone.now() - project.last_update_time).total_seconds < settings.UPDATE_POST_INTERVAL:
+            raise BadRequest('You cannot post project updates more often than once in 12 hours')
 
         serializer.save(project=project, author=self.request.user)
 
@@ -145,7 +147,16 @@ class BuySharesView(generics.CreateAPIView):
         if not (share := models.Share.objects.filter(ophash=ophash).first()):
             share = models.Share.objects.create(project=project, patron=self.request.user, quantity=num_shares,
                                                 ophash=serializer.validated_data['ophash'])
+            if project.max_shares and project.shares_sum > project.max_shares:
+                project.status = project.SALE_CLOSED
+                project.save()
+                blockchain.update_project_status(project)
         serializer._validated_data = share
+
+
+def collection_meta(*args, **kwargs):
+    with open('tezos/collection_meta.json', 'rb') as fp:
+        return HttpResponse(fp.read(), headers={'Content-type': 'application/json'})
 
 
 url_patterns = [

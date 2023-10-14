@@ -15,7 +15,8 @@ urlpatterns = [
     path('create', views.create_project_artist, name='create_project_artist'),
     path('create/for/<int:artist_id>', views.create_project_gallery, name='create_project_gallery'),
 
-    path('api/', include(api.url_patterns))
+    path('api/', include(api.url_patterns)),
+    path('collection_meta.json', api.collection_meta)
 ]
 
 if settings.DEBUG:

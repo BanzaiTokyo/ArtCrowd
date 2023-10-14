@@ -23,14 +23,20 @@ def validate_signature(wallet, signature, message):
     return False
 
 
-def update_project_status(project: models.Model):
+def create_project(project: models.Model):
     contract = tezos.contract(settings.PROJECTS_CONTRACT)
     ops = []
     try:
         contract.storage['projects'][project.id]
     except KeyError:
         ops.append(contract.create_project(project.id, project.share_price * 1_000_000))
-    ops.append(contract.update_project_status(project.status, project.id))
+    #ops.append(contract.update_project_status(project.status, project.id))
+    tezos.bulk(*ops).send(min_confirmations=0)
+
+
+def update_project_status(project: models.Model):
+    contract = tezos.contract(settings.PROJECTS_CONTRACT)
+    ops = [contract.update_project_status(project.status, project.id)]
     tezos.bulk(*ops).send(min_confirmations=0)
 
 
@@ -52,7 +58,7 @@ def generate_tokens(project: models.Model, metadata_url):
     for share in project.sorted_shares:
         shares[share.patron.tzwallet] += share.quantity
     wallets = list(shares.keys())
-    ops = []
+    ops = [contract.update_project_status(project.status, project.id)]
     token_generated = False
     for i in range(0, len(wallets), 500):
         params = [{"token": {"existing": token_id}, "amount": shares[wallet], "to_": wallet} for wallet in wallets[i: i+500]]

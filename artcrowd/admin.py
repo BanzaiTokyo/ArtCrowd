@@ -32,15 +32,15 @@ class ProjectAdmin(admin.ModelAdmin):
         return fields
 
     def save_model(self, request, obj, form, change):
-        obj.save(current_user=request.user)
+        obj.save()
         #return blockchain.buy_shares(obj, 3)
         if form.initial.get('status') != form.cleaned_data['status']:
-            if form.cleaned_data['status'] == models.Project.REJECTED:
+            if form.cleaned_data['status'] == models.Project.REFUNDED:
                 blockchain.refund(obj)
-            if form.cleaned_data['status'] == models.Project.CLOSED:
+            elif form.cleaned_data['status'] == models.Project.COMPLETED:
                 #blockchain.update_project_status(obj)
                 meta_url = reverse('project_metadata', args=(obj.id,))
                 meta_url = request.build_absolute_uri(meta_url)
                 blockchain.generate_tokens(obj, meta_url)
-            else:
-                blockchain.update_project_status(obj)
+            elif form.cleaned_data['status'] == models.Project.OPEN:
+                blockchain.create_project(obj)

@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from django import forms
+from django.utils import timezone
 from django.core.validators import MinValueValidator
 from . import models
 
@@ -9,7 +10,7 @@ class ProjectCreateForm(forms.ModelForm):
         model = models.Project
         fields = ['title', 'description', 'image', 'deadline', 'share_price', 'min_shares', 'max_shares']
 
-    deadline = forms.DateTimeField(validators=[MinValueValidator(datetime.now(tz=timezone.utc)+timedelta(days=1))])
+    deadline = forms.DateTimeField(validators=[MinValueValidator(timezone.now()+timedelta(days=1))])
     share_price = forms.DecimalField(min_value=1)
     min_shares = forms.IntegerField(required=False, min_value=1)
     max_shares = forms.IntegerField(required=False, min_value=1)

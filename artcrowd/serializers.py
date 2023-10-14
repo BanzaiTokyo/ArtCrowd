@@ -1,10 +1,11 @@
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 from django.conf import settings
 from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 from . import models
@@ -67,7 +68,7 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
         model = models.Project
         fields = ['id', 'title', 'description', 'image', 'created_on', 'deadline',
                   'share_price', 'min_shares', 'max_shares', 'shares_num',
-                  'royalty_pct', 'artist', 'presenter', 'last_update',
+                  'royalty_pct', 'artist', 'presenter', 'last_update', 'status'
                   ]
 
 
@@ -78,10 +79,11 @@ class ProjectSerializer(ProjectBriefSerializer):
     can_buy_shares = serializers.SerializerMethodField()
 
     def get_can_post_update(self, obj):
-        return self.context['request'].user.id and self.context['request'].user.id in (obj.artist_id, obj.presenter_id)
+        return self.context['request'].user.id and self.context['request'].user.id in (obj.artist_id, obj.presenter_id)\
+                and ((timezone.now() - obj.last_update_time).total_seconds() > settings.UPDATE_POST_INTERVAL)
 
     def get_can_buy_shares(self, obj):
-        return self.context['request'].user.id and obj.status not in (models.Project.NEW,models.Project.EXPIRED, models.Project.REJECTED, models.Project.CLOSED)
+        return self.context['request'].user.id and obj.status == models.Project.OPEN
 
     class Meta:
         model = models.Project
@@ -100,12 +102,14 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         model = models.Project
         fields = ['id', 'title', 'description', 'image', 'deadline', 'share_price', 'min_shares', 'max_shares']
 
+    title = serializers.CharField(min_length=5, max_length=100)
     deadline = serializers.DateTimeField(
-        validators=[MinValueValidator(datetime.now(tz=timezone.utc) + timedelta(days=1))]
+        validators=[MinValueValidator(timezone.now() + timedelta(days=1))]
     )
     share_price = serializers.IntegerField(min_value=1)
     min_shares = serializers.IntegerField(required=False, min_value=1)
-    max_shares = serializers.IntegerField(required=False, min_value=1)
+    max_shares = serializers.IntegerField(required=False, min_value=1, max_value=1000)
+    royalty_pct = serializers.IntegerField(min_value=0, max_value=15)
 
     def validate(self, data):
         min_shares = data.get('min_shares')
@@ -143,7 +147,7 @@ class ProjectMetadataSerializer(serializers.Serializer):
                 instance.artist.tzwallet
             ],
             "date": instance.created_on.isoformat() + 'Z',
-            "description": instance.description,
+            "description": instance.nft_description,
             "decimals": 0,
             "minter": keyfile['pkh'],
             "image": image_url,
