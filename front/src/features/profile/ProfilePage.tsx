@@ -1,13 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import MaterialReactTable, {MRT_ColumnDef} from "material-react-table";
+import {Avatar} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch} from "../../utils";
 import {API_BASE_URL} from "../../Constants";
+import {Project} from "../../models/Project";
 
 type ProfileType = {
-    projects: Record<string, any>[],
-    gallery_projects: Record<string, any>[],
-    supported_projects: Record<string, any>[],
+    projects: Project[],
+    gallery_projects: Project[],
+    supported_projects: Project[],
 }
 const ProfilePage = () => {
     const {token} = useAuth();
@@ -37,8 +39,8 @@ const ProfilePage = () => {
                     />
                     <span style={{fontSize: "2em"}}>{row.original.title}</span>
                     <div>
-                        by <img alt={row.original.artist.username}
-                                src={row.original.artist.avatar}/> {row.original.artist.avatar}
+                        by <Avatar alt={row.original.artist.username} src={row.original.artist.avatar}></Avatar>
+                            {row.original.artist.avatar}
                     </div>
                 </a>
             ),
