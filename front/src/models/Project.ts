@@ -1,6 +1,6 @@
 import {User} from "./User";
 import {Share} from "./Share";
-import {Status} from "./Status";
+import {ProjectStatus} from "./ProjectStatus";
 import {ProjectUpdate} from "./ProjectUpdate";
 
 export interface Project {
@@ -23,6 +23,6 @@ export interface Project {
     shares_num: number;
     shares_sum: number;
     sorted_shares: Share[];
-    status: Status;
+    status: ProjectStatus;
     title: string;
 }

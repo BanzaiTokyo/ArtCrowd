@@ -1,3 +1,6 @@
+import {ProjectStatus} from "./models/ProjectStatus";
+import dayjs from "dayjs";
+
 export function cutTheMiddle(str: string) {
     if (str != null) {
         return str.substr(0, 5) + '...' + str.substr(str.length - 5, str.length);
@@ -26,42 +29,55 @@ export function formatTez(amount: number): string {
 }
 
 export function getCookie(cookieName: string, cookies = document.cookie) {
-  for (const cookie of cookies.split('; ')) {
-    const [name, value] = cookie.split('=');
-    const trimmedName = name.trim();
-    if (trimmedName === cookieName) {
-      return decodeURIComponent(value);
+    for (const cookie of cookies.split('; ')) {
+        const [name, value] = cookie.split('=');
+        const trimmedName = name.trim();
+        if (trimmedName === cookieName) {
+            return decodeURIComponent(value);
+        }
     }
-  }
-  return null;
+    return null;
 }
 
 export function deleteCookie(cookieName: string) {
-  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 
 export const configureFetch = (token: string | null) => {
-  return (url: string, options?: RequestInit) => {
-    let headers = new Headers(options?.headers);
-    if (headers.get('Content-Type') === 'multipart/form-data') {
-        headers.delete('Content-Type')
-    } else {
-        headers.set('Content-Type', 'application/json');
-    }
-    if (token) {
-      headers.set('Authorization', `token ${token}`)
-    }
-    const fetchOptions: RequestInit = {
-      ...options,
-      headers,
-    };
+    return (url: string, options?: RequestInit) => {
+        let headers = new Headers(options?.headers);
+        if (headers.get('Content-Type') === 'multipart/form-data') {
+            headers.delete('Content-Type')
+        } else {
+            headers.set('Content-Type', 'application/json');
+        }
+        if (token) {
+            headers.set('Authorization', `token ${token}`)
+        }
+        const fetchOptions: RequestInit = {
+            ...options,
+            headers,
+        };
 
-    return fetch(url, fetchOptions);
-  };
+        return fetch(url, fetchOptions);
+    };
 };
 
 export function extractPlainText(htmlString: string) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlString, 'text/html');
-  return doc.body.textContent;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    return doc.body.textContent;
 }
+
+export function isSaleOpen(status: ProjectStatus) {
+    //TODO: list all statuses that that allow salling shares
+    return status === ProjectStatus.OPEN || status === ProjectStatus.APPROVED_BY_ADMIN;
+}
+
+export function getProgressPercentage(start_date: string, end_date: string) {
+    const totalDays = dayjs(start_date).diff(end_date, 'day');
+    const passedDays = dayjs(start_date).diff(dayjs(), 'day');
+    return Math.ceil(passedDays / totalDays * 100);
+}
+
+
