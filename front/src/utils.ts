@@ -70,8 +70,7 @@ export function extractPlainText(htmlString: string) {
 }
 
 export function isSaleOpen(status: ProjectStatus) {
-    //TODO: list all statuses that that allow salling shares
-    return status === ProjectStatus.OPEN || status === ProjectStatus.APPROVED_BY_ADMIN;
+    return status === ProjectStatus.OPEN;
 }
 
 export function getProgressPercentage(start_date: string, end_date: string) {
