@@ -459,7 +459,8 @@ const CreateProject = () => {
                                                 </IconButton>
                                             ,
                                             min: 1,
-                                            ...register("min_shares", {required: 'This field is required', min: 1, max: 1000})
+                                            max: 1000,
+                                            ...register("min_shares", {required: 'This field is required'})
                                         }}
 
                                         error={!!errors.min_shares}

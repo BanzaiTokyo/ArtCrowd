@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams,} from 'react-router-dom';
+import {LinearProgress} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch} from "../../utils";
 import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
@@ -11,19 +12,22 @@ const ProjectPage: React.FC = () => {
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
     const {projectId} = useParams();
-    const [project, setProject] = useState<Project>();
+    const [project, setProject] = useState<Project | null>();
 
     useEffect(() => {
         if (projectId && (token != null)) {
             fetchWithAuth(`${API_BASE_URL}${PROJECT_ENDPOINT}/${projectId}`)
                 .then(response => {
-                    return response.ok ? response.json() : new Promise(reject => () => null)
+                    return response.ok ? response.json() : new Promise(resolve => () => null)
                 })
                 .then((project) => setProject(project))
         }
     }, [projectId, token])
 
-    return project ? <>
+    if (project === undefined) {
+        return <LinearProgress />
+    }
+    return !project ? <>Project not found</> : <>
         <div style={{float: "left"}}>
             <img src={project.image} alt={`project ${projectId} preview`}
                  style={{maxWidth: '100%', maxHeight: '900px'}}/>
@@ -68,7 +72,7 @@ const ProjectPage: React.FC = () => {
                 </div>
             })}
         </div>
-    </> : <>Project not found</>;
+    </>;
 };
 
 export default ProjectPage;

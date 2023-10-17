@@ -25,7 +25,7 @@ function ProjectUpdateForm(params: any) {
       }
     }
     try {
-      const response = await fetchWithAuth(API_BASE_URL+`${projectId}/update`, {
+      const response = await fetchWithAuth(API_BASE_URL+`projects/${projectId}/update`, {
         method: 'POST',
         body: formData,
         headers: {
