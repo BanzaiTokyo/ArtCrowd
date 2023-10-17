@@ -80,7 +80,7 @@ class ProjectsList(generics.ListAPIView):
 
             return queryset
 
-    queryset = models.Project.objects.annotate(shares_num=Count('shares__id')).all()
+    queryset = models.Project.objects.annotate(shares_num=Count('project_shares__id')).all()
     serializer_class = serializers.ProjectBriefSerializer
     filter_backends = [OpenFilterBackend, OrderingFilter]
 
@@ -106,7 +106,7 @@ class ProjectUpdate(generics.CreateAPIView):
 
         if self.request.user != project.artist and self.request.user != project.presenter:
             raise PermissionDenied('Only project artist or presenter can post updates')
-        if (timezone.now() - project.last_update_time).total_seconds < settings.UPDATE_POST_INTERVAL:
+        if (timezone.now() - project.last_update_time).total_seconds() < settings.UPDATE_POST_INTERVAL:
             raise BadRequest('You cannot post project updates more often than once in 12 hours')
 
         serializer.save(project=project, author=self.request.user)

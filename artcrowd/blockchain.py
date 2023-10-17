@@ -42,7 +42,7 @@ def update_project_status(project: models.Model):
 
 def refund(project: models.Model):
     contract = tezos.contract(settings.PROJECTS_CONTRACT)
-    wallets = list(set([s.patron.tzwallet for s in project.sorted_shares]))
+    wallets = list(set([s.patron.tzwallet for s in project.shares]))
     ops = [contract.refund(project.id, wallets[i: i+500]) for i in range(0, len(wallets), 500)]
     ops.append(contract.update_project_status(project.status, project.id))
     result = tezos.bulk(*ops).send(min_confirmations=0)
@@ -55,7 +55,7 @@ def generate_tokens(project: models.Model, metadata_url):
     # upload meta
     meta_url = metadata_url.encode()
     shares = defaultdict(int)
-    for share in project.sorted_shares:
+    for share in project.shares:
         shares[share.patron.tzwallet] += share.quantity
     wallets = list(shares.keys())
     ops = [contract.update_project_status(project.status, project.id)]

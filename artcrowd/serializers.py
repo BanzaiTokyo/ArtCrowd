@@ -74,13 +74,16 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(ProjectBriefSerializer):
     image = serializers.ImageField(read_only=True)
-    sorted_shares = ShareAsNestedObj(many=True, read_only=True)
+    shares = ShareAsNestedObj(many=True, read_only=True)
+    updates = ProjectUpdateSerializer(many=True, read_only=True)
     can_post_update = serializers.SerializerMethodField()
     can_buy_shares = serializers.SerializerMethodField()
 
     def get_can_post_update(self, obj):
-        return self.context['request'].user.id and self.context['request'].user.id in (obj.artist_id, obj.presenter_id)\
-                and ((timezone.now() - obj.last_update_time).total_seconds() > settings.UPDATE_POST_INTERVAL)
+        return self.context['request'].user.id and (
+                    self.context['request'].user.id in (obj.artist_id, obj.presenter_id)
+                    or self.context['request'].user.is_superuser
+                ) and ((timezone.now() - obj.last_update_time).total_seconds() > settings.UPDATE_POST_INTERVAL)
 
     def get_can_buy_shares(self, obj):
         return self.context['request'].user.id and obj.status == models.Project.OPEN
@@ -88,7 +91,7 @@ class ProjectSerializer(ProjectBriefSerializer):
     class Meta:
         model = models.Project
         fields = ProjectBriefSerializer.Meta.fields + [
-                    'shares_sum', 'sorted_shares', 'can_post_update', 'can_buy_shares']
+                    'updates', 'shares_sum', 'shares', 'can_post_update', 'can_buy_shares']
 
 
 class ProjectListSerializer(serializers.Serializer):

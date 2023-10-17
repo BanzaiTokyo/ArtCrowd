@@ -46,35 +46,41 @@ class Project(models.Model):
     @cached_property
     def last_update(self):
         try:
-            return self.updates.latest('created_on')
+            return self.project_updates.latest('created_on')
         except ProjectUpdate.DoesNotExist:
             return None
 
+    @cached_property
     def last_update_time(self):
         return self.last_update.created_on if self.last_update else self.created_on
 
     @cached_property
-    def sorted_shares(self):
-        return list(self.shares.all().order_by('-purchased_on'))
+    def updates(self):
+        return list(self.project_updates.all().order_by('-created_on'))
+
+    @cached_property
+    def shares(self):
+        return list(self.project_shares.all().order_by('-purchased_on'))
 
     @cached_property
     def shares_num(self):
-        return len(self.sorted_shares)
+        return self.project_shares.count()
 
     @cached_property
     def shares_sum(self):
-        return sum((s.quantity for s in self.sorted_shares))*self.share_price
+        total_quantity = self.project_shares.aggregate(total_quantity=models.Sum('quantity'))['total_quantity']
+        return (total_quantity or 0) * self.share_price
 
 
 class ProjectStatus(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="statuses")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_statuses")
     status = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     updated_on = models.DateTimeField(auto_now_add=True)
 
 
 class ProjectUpdate(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="updates")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_updates")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(null=True, blank=True)
@@ -82,7 +88,7 @@ class ProjectUpdate(models.Model):
 
 
 class Share(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="shares")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_shares")
     patron = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True)
     quantity = models.IntegerField()
     purchased_on = models.DateTimeField(auto_now_add=True)

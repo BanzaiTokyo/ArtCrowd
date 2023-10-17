@@ -1,11 +1,28 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from sorl.thumbnail import get_thumbnail
 from . import models, blockchain
 
 
-admin.site.register(models.User)
+@admin.register(models.User)
+class CustomUserAdmin(UserAdmin):
+    list_display = ('username', 'tzwallet')
+    #list_filter = ('is_staff', 'is_superuser', 'groups')
+    search_fields = ('username', 'tzwallet')
+    ordering = ('username',)
+
+    fieldsets = (
+        (None, {'fields': ('username', )}),
+        ('Personal info', {'fields': ('tzwallet', 'first_name', 'last_name', 'email', 'avatar')}),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+        }),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    )
+
+
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist', 'created_on', 'status')
