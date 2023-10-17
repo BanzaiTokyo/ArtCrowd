@@ -65,7 +65,7 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Pr
                             flexGrow: '1',
                             maxHeight: '200px',
                             objectFit: 'contain',
-                            objectPosition: 'left top'
+                            objectPosition: 'center top'
                         }}
                     />
                 </CardActionArea>
