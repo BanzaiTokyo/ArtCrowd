@@ -2,12 +2,15 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.functional import cached_property
 from django.db import models
 from sorl.thumbnail import ImageField
+from ckeditor.fields import RichTextField
 from . import settings
 
 
 class User(AbstractUser):
     tzwallet = models.CharField(max_length=36, null=True, blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    first_name = models.CharField(verbose_name='Name', max_length=150, blank=True)
+    description = RichTextField(blank=True)
 
 
 class Project(models.Model):

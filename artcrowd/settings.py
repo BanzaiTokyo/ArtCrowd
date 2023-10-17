@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     #'sslserver',
     'sorl.thumbnail',
+    'ckeditor',
     'artcrowd',
 ]
 
@@ -175,6 +176,21 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat'],
+        ],
+        'width': 800,
+        'height': 300,
+    },
+}
 
 PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1WYtFLhxmBkLYJrBg4xaA6sStnMuTwZA57')  # KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq
 GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x')
