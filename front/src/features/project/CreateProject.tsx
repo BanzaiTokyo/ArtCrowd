@@ -500,7 +500,7 @@ const CreateProject = () => {
                                                     <InfoIcon/>
                                                 </IconButton>
                                         }}
-                                        inputProps={{min: 0, step: "any", ...register("max_shares")}}
+                                        inputProps={{...register("max_shares", {required: true, valueAsNumber: true})} }
                                         error={!!errors.max_shares}
                                         helperText={errors.max_shares?.message}
                                     />

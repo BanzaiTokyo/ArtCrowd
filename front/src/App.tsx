@@ -26,7 +26,7 @@ function App() {
                         <Route path="/login-by-password" element={<Login/>}/>
                         <Route path="/login" element={<LoginByWallet/>}/>
                         <Route path="/" element={<ProfilePage/>}/>
-                        <Route path="/buy" element={<ProjectBuy />}/>
+                        <Route path="/:projectId/buy" element={<ProjectBuy />}/>
                         <Route path="/:projectId" element={<ProjectPage/>}/>
                         <Route path="/create" element={<CreateProject/>}/>
                         <Route path="/tezos" element={<TezosPage/>}/>

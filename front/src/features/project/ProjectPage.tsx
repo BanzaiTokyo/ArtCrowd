@@ -32,7 +32,7 @@ const ProjectPage = () => {
     return !project ? <>Project not found</> : <>
         <img src={project.image}
              alt={`project ${projectId} preview`}
-             style={{maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'}}/>
+             style={{maxWidth: '100%', maxHeight: '900px', objectFit: 'contain'}}/>
         <div>
             <h1>{project.title}</h1>
             <img src={project.artist.avatar || ''} alt="avatar"/>

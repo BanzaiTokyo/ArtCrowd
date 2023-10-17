@@ -1,8 +1,10 @@
 import React from 'react';
 import {useLocation} from "react-router-dom";
-import {Box, Card, CardContent, CardMedia, Typography} from "@mui/material";
+import {Avatar, Box, Card, CardContent, CardHeader, CardMedia, Link, Typography} from "@mui/material";
 import {Project} from "../../../models/Project";
 import BuySharesForm from "./BuySharesForm";
+import {cutTheTail} from "../../../utils";
+import dayjs from "dayjs";
 
 
 function ProjectBuy() {
@@ -17,20 +19,32 @@ function ProjectBuy() {
             <Card sx={{display: 'flex'}}>
                 <CardMedia
                     component="img"
-                    sx={{width: 151}}
+                    sx={{maxHeight: 200, maxWidth: 200, objectFit: 'contain', margin: 0, padding: 0, flexGrow: 0}}
                     image={project.image}
                     alt={project.title}
                 />
-                <Box sx={{display: 'flex', flexDirection: 'column'}}>
-                    <CardContent sx={{flex: '1 0 auto'}}>
+
+                <Box sx={{display: 'flex', flexDirection: 'column', maxWidth: '100%'}}>
+                    <CardHeader
+                        avatar={
+                            <>
+                                <Avatar alt={project.artist.username} src={project.artist.avatar}/>
+                            </>
+                        }
+                        //TODO: link to a real profile
+                        title={<div><Link href={'profile'} underline="none"> {project.artist.username}</Link></div>}
+                    />
+
+                    <CardContent>
+                        <Typography variant="subtitle1" gutterBottom>
+                            {`${dayjs(project.created_on).format('MMMM DD, YYYY')} - ${dayjs(project.deadline).format('MMMM DD, YYYY')}`}
+                        </Typography>
                         <Typography component="div" variant="h5">
-                            {project.title}                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary" component="div">
-                            {project.artist.username}
+                            {project.title}
                         </Typography>
                     </CardContent>
-                    <Box sx={{display: 'flex', alignItems: 'center', pl: 1, pb: 1}}>
-                        hello world
+                    <Box px={2}>
+                        <span dangerouslySetInnerHTML={{__html: cutTheTail(project.description, 500)}}/>
                     </Box>
                 </Box>
 

@@ -110,7 +110,7 @@ export default function ProjectCard(props: { project: Project }) {
                             </Box>
                             <Spacer/>
 
-                            <Button variant="outlined" component={RouterLink} to={'/buy'} state={{project:project}}>Purchase</Button>
+                            <Button variant="outlined" component={RouterLink} to={`/${project.id}/buy`} state={{project:project}}>Purchase</Button>
 
                         </Stack>
 
