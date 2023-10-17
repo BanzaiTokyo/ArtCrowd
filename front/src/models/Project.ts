@@ -22,7 +22,7 @@ export interface Project {
     share_price: number;
     shares_num: number;
     shares_sum: number;
-    sorted_shares: Share[];
+    shares: Share[];
     status: ProjectStatus;
     title: string;
 }

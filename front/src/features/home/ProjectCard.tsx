@@ -16,6 +16,8 @@ import {
     Stack,
     Typography
 } from '@mui/material';
+import { Link as RouterLink } from "react-router-dom";
+
 import {getProgressPercentage, isSaleOpen} from "../../utils";
 import {Project} from "../../models/Project";
 import Spacer from "../../components/common/Spacer";
@@ -33,8 +35,8 @@ const TruncatedText = styled((props: any) => {
     textOverflow: 'ellipsis',
 }));
 
-export default function ProjectCard(props: { browsedArtist?: string, project: Project }) {
-    const {browsedArtist, project} = props;
+export default function ProjectCard(props: { project: Project }) {
+    const {project} = props;
 
     return (
         <Grid item xs={12} md={4}>
@@ -49,8 +51,9 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Pr
                     title={<div>
                         <Link href={'profile'} underline="none"> {project.artist.username}</Link>
                         <Box sx={{minHeight: 10}}>
-                            <LinearProgress variant="determinate" color={isSaleOpen(project.status) ? 'primary' : 'inherit'}
-                                                                           value={getProgressPercentage(project.created_on, project.deadline, project.status)}
+                            <LinearProgress variant="determinate"
+                                            color={isSaleOpen(project.status) ? 'primary' : 'inherit'}
+                                            value={getProgressPercentage(project.created_on, project.deadline, project.status)}
                             />
                         </Box>
                     </div>}
@@ -106,7 +109,9 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Pr
                                 </Typography>
                             </Box>
                             <Spacer/>
-                            <Button variant="outlined">Purchase</Button>
+
+                            <Button variant="outlined" component={RouterLink} to={'/buy'} state={{project:project}}>Purchase</Button>
+
                         </Stack>
 
                     </Box>

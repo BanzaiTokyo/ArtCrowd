@@ -4,15 +4,17 @@ import {LinearProgress} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
 import {configureFetch} from "../../utils";
 import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
-import BuySharesForm from "../../components/BuySharesForm";
+import BuySharesForm from "./buy/BuySharesForm";
 import ProjectUpdateForm from "./ProjectUpdateForm";
 import {Project} from "../../models/Project";
 
-const ProjectPage: React.FC = () => {
+const IMAGE_STYLE_FULL_SIZE = {maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'};
+
+const ProjectPage = () => {
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
     const {projectId} = useParams();
-    const [project, setProject] = useState<Project | null>();
+    const [project, setProject] = useState<Project>();
 
     useEffect(() => {
         if (projectId && (token != null)) {
@@ -20,18 +22,17 @@ const ProjectPage: React.FC = () => {
                 .then(response => {
                     return response.ok ? response.json() : new Promise(resolve => () => null)
                 })
-                .then((project) => setProject(project))
+                .then((project: Project) => setProject(project as Project))
         }
     }, [projectId, token])
 
     if (project === undefined) {
-        return <LinearProgress />
+        return <LinearProgress/>
     }
     return !project ? <>Project not found</> : <>
-        <div style={{float: "left"}}>
-            <img src={project.image} alt={`project ${projectId} preview`}
-                 style={{maxWidth: '100%', maxHeight: '900px'}}/>
-        </div>
+        <img src={project.image}
+             alt={`project ${projectId} preview`}
+             style={{maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'}}/>
         <div>
             <h1>{project.title}</h1>
             <img src={project.artist.avatar || ''} alt="avatar"/>
@@ -54,7 +55,8 @@ const ProjectPage: React.FC = () => {
             {project.updates && project.updates.map((update) => {
                 return (
                     <><h2>Update from {update.created_on}</h2>
-                        {update.image && <img src={update.image} alt="project update"/>}
+                        {update.image &&
+                        <img src={update.image} alt="project update"/>}
                         {update.description}
                     </>
                 )
@@ -63,7 +65,7 @@ const ProjectPage: React.FC = () => {
 
             <h2>Patrons</h2>
             {project.can_buy_shares && <BuySharesForm project={project}/>}
-            {project.sorted_shares.map((share: Record<string, any>, i: number) => {
+            {project.shares.map((share: Record<string, any>, i: number) => {
                 return <div key={i.toString()}>
                     {share.purchased_on}&nbsp;
                     {share.quantity} share(s)&nbsp;

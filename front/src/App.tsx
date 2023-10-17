@@ -12,6 +12,7 @@ import Layout from "./components/Layout";
 import About from "./features/about/About";
 import Home from "./features/home/Home";
 import ProjectCardsList from "./features/home/ProjectCardsList";
+import ProjectBuy from "./features/project/buy/ProjectBuy";
 
 function App() {
     return (
@@ -25,6 +26,7 @@ function App() {
                         <Route path="/login-by-password" element={<Login/>}/>
                         <Route path="/login" element={<LoginByWallet/>}/>
                         <Route path="/" element={<ProfilePage/>}/>
+                        <Route path="/buy" element={<ProjectBuy />}/>
                         <Route path="/:projectId" element={<ProjectPage/>}/>
                         <Route path="/create" element={<CreateProject/>}/>
                         <Route path="/tezos" element={<TezosPage/>}/>

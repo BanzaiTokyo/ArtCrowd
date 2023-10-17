@@ -40,7 +40,7 @@ export default function ProjectCardsList() {
                 <LinearProgress/>
             </Container>}
 
-            {!isLoading && totalRecords/rowsPerPage > rowsPerPage &&
+            {!isLoading && totalRecords / rowsPerPage > rowsPerPage &&
             <Pagination showFirstButton
                         showLastButton={false}
                         count={Math.floor(totalRecords / rowsPerPage)}
@@ -55,7 +55,7 @@ export default function ProjectCardsList() {
 
             <Grid container spacing={2} alignItems="stretch">
 
-                {!isLoading && data.map(project => <ProjectCard key={project.id} browsedArtist={artist} project={project}/>)}
+                {!isLoading && data.map(project => <ProjectCard key={project.id} project={project}/>)}
             </Grid>
         </>);
 }
