@@ -73,7 +73,9 @@ export function isSaleOpen(status: ProjectStatus) {
     return status === ProjectStatus.OPEN;
 }
 
-export function getProgressPercentage(start_date: string, end_date: string) {
+export function getProgressPercentage(start_date: string, end_date: string, status: ProjectStatus) {
+    if (status === ProjectStatus.NEW) return 0;
+    if (status === ProjectStatus.SALE_CLOSED || status === ProjectStatus.COMPLETED || status === ProjectStatus.REFUNDED) return 100;
     const totalDays = dayjs(start_date).diff(end_date, 'day');
     const passedDays = dayjs(start_date).diff(dayjs(), 'day');
     return Math.ceil(passedDays / totalDays * 100);

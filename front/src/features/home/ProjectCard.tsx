@@ -49,9 +49,9 @@ export default function ProjectCard(props: { browsedArtist?: string, project: Pr
                     title={<div>
                         <Link href={'profile'} underline="none"> {project.artist.username}</Link>
                         <Box sx={{minHeight: 10}}>
-                            {isSaleOpen(project.status) && <LinearProgress variant="determinate"
-                                                                           value={getProgressPercentage(project.created_on, project.deadline)}
-                            />}
+                            <LinearProgress variant="determinate" color={isSaleOpen(project.status) ? 'primary' : 'inherit'}
+                                                                           value={getProgressPercentage(project.created_on, project.deadline, project.status)}
+                            />
                         </Box>
                     </div>}
                     subheader={`${dayjs(project.created_on).format('MMMM DD, YYYY')} - ${dayjs(project.deadline).format('MMMM DD, YYYY')}`}
