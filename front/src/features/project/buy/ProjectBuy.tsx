@@ -1,10 +1,11 @@
 import React from 'react';
 import {useLocation} from "react-router-dom";
-import {Avatar, Box, Card, CardContent, CardHeader, CardMedia, Link, Typography} from "@mui/material";
+import {Avatar, Box, Card, CardContent, CardHeader, CardMedia, Link, Stack, Typography} from "@mui/material";
 import {Project} from "../../../models/Project";
 import BuySharesForm from "./BuySharesForm";
 import {cutTheTail} from "../../../utils";
 import dayjs from "dayjs";
+import {DESCRIPTION_LONG_PREVIEW_LENGTH} from "../../../Constants";
 
 
 function ProjectBuy() {
@@ -14,7 +15,7 @@ function ProjectBuy() {
 
     if (project == null) return (<div>couldn't load the project</div>);
     return (
-        <div>
+        <Stack direction={'column'} spacing={2}>
             {/*project preview*/}
             <Card sx={{display: 'flex'}}>
                 <CardMedia
@@ -27,12 +28,12 @@ function ProjectBuy() {
                 <Box sx={{display: 'flex', flexDirection: 'column', maxWidth: '100%'}}>
                     <CardHeader
                         avatar={
-                            <>
+                            <a href={`/profile/${encodeURIComponent(project.artist.username)}`}>
                                 <Avatar alt={project.artist.username} src={project.artist.avatar}/>
-                            </>
+                            </a>
                         }
-                        //TODO: link to a real profile
-                        title={<div><Link href={'profile'} underline="none"> {project.artist.username}</Link></div>}
+                        title={<div><Link href={`/profile/${encodeURIComponent(project.artist.username)}`}
+                                          underline="none"> {project.artist.username}</Link></div>}
                     />
 
                     <CardContent>
@@ -44,14 +45,14 @@ function ProjectBuy() {
                         </Typography>
                     </CardContent>
                     <Box px={2}>
-                        <span dangerouslySetInnerHTML={{__html: cutTheTail(project.description, 500)}}/>
+                        <span dangerouslySetInnerHTML={{__html: cutTheTail(project.description, DESCRIPTION_LONG_PREVIEW_LENGTH)}}/>
                     </Box>
                 </Box>
 
             </Card>
 
             <BuySharesForm project={project}/>
-        </div>
+        </Stack>
     );
 }
 

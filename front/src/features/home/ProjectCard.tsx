@@ -43,9 +43,9 @@ export default function ProjectCard(props: { project: Project }) {
             <Card>
                 <CardHeader
                     avatar={
-                        <>
+                        <a  href={`/profile/${encodeURIComponent(project.artist.username)}`}>
                             <Avatar alt={project.artist.username} src={project.artist.avatar}/>
-                        </>
+                        </a>
                     }
                     title={<div>
                         <Link href={`/profile/${encodeURIComponent(project.artist.username)}`} underline="none"> {project.artist.username}</Link>

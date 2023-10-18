@@ -1,5 +1,6 @@
 import {ProjectStatus} from "./models/ProjectStatus";
 import dayjs from "dayjs";
+import {FEE_PCT} from "./Constants";
 
 export function cutTheMiddle(str: string) {
     if (str != null) {
@@ -79,6 +80,10 @@ export function getProgressPercentage(start_date: string, end_date: string, stat
     const totalDays = dayjs(start_date).diff(end_date, 'day');
     const passedDays = dayjs(start_date).diff(dayjs(), 'day');
     return Math.ceil(passedDays / totalDays * 100);
+}
+
+export function calculateCommission(amount: number) {
+    return Math.round(((FEE_PCT / 100 * amount) + Number.EPSILON) * 100) / 100;
 }
 
 
