@@ -47,9 +47,8 @@ export default function ProjectCard(props: { project: Project }) {
                             <Avatar alt={project.artist.username} src={project.artist.avatar}/>
                         </>
                     }
-                    //TODO: link to a real profile
                     title={<div>
-                        <Link href={'profile'} underline="none"> {project.artist.username}</Link>
+                        <Link href={`/profile/${encodeURIComponent(project.artist.username)}`} underline="none"> {project.artist.username}</Link>
                         <Box sx={{minHeight: 10}}>
                             <LinearProgress variant="determinate"
                                             color={isSaleOpen(project.status) ? 'primary' : 'inherit'}

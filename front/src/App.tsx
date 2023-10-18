@@ -11,8 +11,8 @@ import LoginByWallet from "./components/LoginByWallet";
 import Layout from "./components/Layout";
 import About from "./features/about/About";
 import Home from "./features/home/Home";
-import ProjectCardsList from "./features/home/ProjectCardsList";
 import ProjectBuy from "./features/project/buy/ProjectBuy";
+import ProjectCardsList from "./features/home/ProjectCardsList";
 
 function App() {
     return (
@@ -20,12 +20,11 @@ function App() {
             <Router>
                 <Routes>
                     <Route element={<Layout/>}>
-                        <Route path="/" element={<ProjectCardsList/>}/>
-                        <Route path="/artist/:username" element={<ProjectCardsList/>}/>
+                        <Route path="/" element={<ProjectCardsList />}/>
                         <Route path="/about" element={<About/>}/>
                         <Route path="/login-by-password" element={<Login/>}/>
                         <Route path="/login" element={<LoginByWallet/>}/>
-                        <Route path="/" element={<ProfilePage/>}/>
+                        <Route path="/profile/:username" element={<ProfilePage/>}/>
                         <Route path="/:projectId/buy" element={<ProjectBuy />}/>
                         <Route path="/:projectId" element={<ProjectPage/>}/>
                         <Route path="/create" element={<CreateProject/>}/>

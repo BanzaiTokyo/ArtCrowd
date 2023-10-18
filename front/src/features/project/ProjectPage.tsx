@@ -20,9 +20,9 @@ const ProjectPage = () => {
         if (projectId && (token != null)) {
             fetchWithAuth(`${API_BASE_URL}${PROJECT_ENDPOINT}/${projectId}`)
                 .then(response => {
-                    return response.ok ? response.json() : new Promise(resolve => () => null)
+                    return response.ok ? response.json() : null
                 })
-                .then((project: Project) => setProject(project as Project))
+                .then((project: Project | null) => setProject(project as Project))
         }
     }, [projectId, token])
 
