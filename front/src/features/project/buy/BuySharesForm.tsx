@@ -60,7 +60,6 @@ function BuySharesForm(params: BuySharesFormParams) {
     const onNumSharesUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (sharesLeft != null && Number(event.target.value) > Number(project.max_shares)) {
             event.preventDefault();
-            console.log('preventing...');
             return;
         }
         setSelectedNumShares(Number(event.target.value));
