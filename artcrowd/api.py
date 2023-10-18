@@ -47,18 +47,20 @@ class CheckinView(generics.views.APIView):
         return Response()
 
 
-class ProfileView(generics.views.APIView):
-    permission_classes = [IsAuthenticated]
+class ProfileView(generics.RetrieveAPIView):
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UserSerializer
+    lookup_field = 'username'
 
-    def get(self, request):
+    """def get1(self, request):
         data = {
             'projects': models.Project.objects.filter(artist=request.user).all(),
             'gallery_projects': models.Project.objects.filter(presenter=request.user).all(),
-            'supported_projects': models.Project.objects.filter(shares__patron_id=request.user.id)
-                                        .annotate(shares_num=Count('shares__id'))
+            'supported_projects': models.Project.objects.filter(project_shares__patron_id=request.user.id)
+                                        .annotate(shares_num=Count('project_shares__id'))
         }
         serializer = serializers.ProjectListSerializer(data, context={'request': request})
-        return Response(serializer.data)
+        return Response(serializer.data)"""
 
 
 class ProjectsList(generics.ListAPIView):
@@ -68,15 +70,20 @@ class ProjectsList(generics.ListAPIView):
         def filter_queryset(self, request, queryset, view):
             open_param = request.query_params.get('open')
             artist_param = request.query_params.get('artist')
+            patron_param = request.query_params.get('patron')
+            presenter_param = request.query_params.get('presenter')
 
             if open_param:
                 if open_param in (True, "True", "true", "1"):
                     queryset = queryset.filter(status=models.Project.OPEN)
                 elif open_param in (False, "False", "false", "0"):
                     queryset = queryset.exclude(status__in=[models.Project.COMPLETED, models.Project.SALE_CLOSED])
-
             if artist_param:
                 queryset = queryset.filter(artist__username=artist_param)
+            if patron_param:
+                queryset = queryset.filter(project_shares__patron__username=patron_param)
+            if presenter_param:
+                queryset = queryset.filter(presenter__username=presenter_param)
 
             return queryset
 
@@ -164,7 +171,7 @@ url_patterns = [
     path("login-by-wallet", LoginByWalletView.as_view(), name='login_by_wallet'),
     path("logout", LogoutView.as_view(), name='logout'),
     path("checkin", CheckinView.as_view(), name='checkin'),
-    path("profile", ProfileView.as_view(), name='profile'),
+    path("profile/<str:username>", ProfileView.as_view(), name='profile'),
     path("projects", ProjectsList.as_view(), name='projects'),
     path("projects/<int:pk>", ProjectDetail.as_view(), name='project'),
     path("projects/<int:pk>/update", ProjectUpdate.as_view(), name='project_update'),

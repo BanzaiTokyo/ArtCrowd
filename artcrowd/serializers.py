@@ -30,14 +30,20 @@ class ACAuthTokenSerializer(serializers.Serializer):
         return attrs
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserBriefSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = ['username', 'avatar']
 
 
+class UserSerializer(UserBriefSerializer):
+    class Meta:
+        model = models.User
+        fields = UserBriefSerializer.Meta.fields + ['first_name', 'description']
+
+
 class ShareAsNestedObj(serializers.ModelSerializer):
-    patron = UserSerializer(read_only=True)
+    patron = UserBriefSerializer(read_only=True)
 
     class Meta:
         model = models.Share
@@ -58,8 +64,8 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
 
 
 class ProjectBriefSerializer(serializers.ModelSerializer):
-    artist = UserSerializer(read_only=True)
-    presenter = UserSerializer(read_only=True)
+    artist = UserBriefSerializer(read_only=True)
+    presenter = UserBriefSerializer(read_only=True)
     image = HyperlinkedSorlImageField('100', read_only=True)
     last_update = ProjectUpdateSerializer(read_only=True)
     shares_num = serializers.IntegerField(read_only=True)
@@ -127,7 +133,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
 class BuySharesSerializer(serializers.ModelSerializer):
     ophash = serializers.CharField(max_length=51, write_only=True)
-    patron = UserSerializer(read_only=True)
+    patron = UserBriefSerializer(read_only=True)
     quantity = serializers.IntegerField(read_only=True)
     purchased_on = serializers.DateTimeField(read_only=True)
 
