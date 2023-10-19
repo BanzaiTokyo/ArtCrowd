@@ -1,7 +1,7 @@
 import {Box} from "@mui/material";
 import React from "react";
 
-export  default function Spacer(props: {maxWidthPx?: number}) {
+export  default function HSpacer(props: {maxWidthPx?: number}) {
     return <Box sx={{
         display: 'flex',
         flexGrow: 1,

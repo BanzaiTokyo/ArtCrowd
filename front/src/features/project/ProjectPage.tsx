@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {useParams,} from 'react-router-dom';
-import {Avatar, LinearProgress, Box, Typography} from "@mui/material";
-import dayjs from "dayjs";
+import {Link as RouterLink, useParams,} from 'react-router-dom';
+import {Avatar, Box, Button, CardHeader, LinearProgress, Link, Stack, Typography} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
-import {configureFetch} from "../../utils";
-import {API_BASE_URL, PROJECT_ENDPOINT} from "../../Constants";
+import {configureFetch, formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
+import {API_BASE_URL, FEE_PCT, PROJECT_ENDPOINT} from "../../Constants";
 import BuySharesForm from "./buy/BuySharesForm";
 import ProjectUpdateForm from "./ProjectUpdateForm";
 import {Project} from "../../models/Project";
-import {FEE_PCT} from "../../Constants";
+import ProjectUpdateComponent from "./update/ProjectUpdateComponent";
+import HSpacer from "../../components/common/HSpacer";
 
 const IMAGE_STYLE_FULL_SIZE = {maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'};
 
@@ -32,26 +32,65 @@ const ProjectPage = () => {
         return <LinearProgress/>
     }
     return !project ? <>Project not found</> : <>
+        <CardHeader
+            avatar={
+                <a href={`/profile/${encodeURIComponent(project.artist.username)}`}>
+                    <Avatar alt={project.artist.username} src={project.artist.avatar}/>
+                </a>
+            }
+            title={<div>
+                <Link href={`/profile/${encodeURIComponent(project.artist.username)}`} underline="none"> <Typography
+                    variant={'h6'}>{project.artist.username}</Typography></Link>
+                <Box sx={{minHeight: 10}}>
+                    <LinearProgress variant="determinate"
+                                    color={isSaleOpen(project.status) ? 'primary' : 'inherit'}
+                                    value={getProgressPercentage(project.created_on, project.deadline, project.status)}
+                    />
+                </Box>
+            </div>}
+            subheader={`${formatDate(project.created_on)} - ${formatDate(project.deadline)}`}
+        />
+
         <img src={project.image}
              alt={`project ${projectId} preview`}
              style={{maxWidth: '100%', maxHeight: '900px', objectFit: 'contain'}}/>
-        <div>
-            <h1>{project.title}</h1>
-            <Box sx={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                <Avatar alt={project.artist.username} src={project.artist.avatar} />
-                <Typography variant="h4" px={2}>{project.artist.username}</Typography>
-            </Box>
-            {project.presenter && <>
-                presented by
-                <Box sx={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                    <Avatar alt={project.presenter.username} src={project.presenter.avatar} />
-                    <Typography variant="h4" px={2}>{project.presenter.username}</Typography>
-                </Box>
-            </>}
-            <div dangerouslySetInnerHTML={{__html: project.description}}/>
-            <div>Deadline: {project.deadline}</div>
 
-            <h2>Shares</h2>
+        <div>
+            <Stack direction={'row'}>
+                <Box>
+                    <Typography variant={'h3'}>{project.title}</Typography>
+                </Box>
+                <HSpacer/>
+                <Box>
+                    <Button variant={'contained'}
+                            size={'large'}
+                            component={RouterLink}
+                            to={`/${project.id}/buy`}
+                            state={{project: project}}>Support</Button>
+                </Box>
+            </Stack>
+
+
+            {/*TODO: work on this part when we have projects presented by*/}
+            {project.presenter && <>
+                presented by:
+                <CardHeader
+                    avatar={
+                        <a href={`/profile/${encodeURIComponent(project.presenter.username)}`}>
+                            <Avatar alt={project.presenter.username} src={project.presenter.avatar}/>
+                        </a>
+                    }
+                    title={<div>
+                        <Link href={`/profile/${encodeURIComponent(project.presenter.username)}`} underline="none">
+                            <Typography
+                                variant={'h6'}>{project.presenter.username}</Typography></Link>
+                    </div>}
+                />
+            </>}
+
+            <div dangerouslySetInnerHTML={{__html: project.description}}/>
+
+            <Typography variant={'h4'}>Shares</Typography>
             <div>price per share: {project.share_price} Tez</div>
             <div>purchased: {project.shares_num}</div>
             <div>reserve: {project.min_shares}</div>
@@ -62,13 +101,10 @@ const ProjectPage = () => {
             </div>
             <div>Royalties: {project.royalty_pct} % to the artist, {FEE_PCT} % to the gallery</div>
 
+            {project.updates && <Typography variant={'h4'}>Project updates</Typography>}
             {project.updates && project.updates.map((update) => {
                 return (
-                    <><h2>Update from {update.created_on}</h2>
-                        {update.image &&
-                        <img src={update.image} alt="project update"/>}
-                        {update.description}
-                    </>
+                    <ProjectUpdateComponent key={JSON.stringify(update)} update={update}/>
                 )
             })}
             {project.can_post_update && <ProjectUpdateForm projectId={projectId}/>}
@@ -78,9 +114,9 @@ const ProjectPage = () => {
             {project.shares.map((share: Record<string, any>, i: number) => {
                 return <div key={i.toString()}>
                     <Box sx={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                        <Typography px={2}>{dayjs(share.purchased_on).format('MMMM DD, YYYY')}</Typography>
+                        <Typography px={2}>{formatDate(share.purchased_on)}</Typography>
                         <Typography px={2}>{share.quantity} share(s)</Typography>
-                        <Avatar alt={share.patron.username} src={share.patron.avatar} />
+                        <Avatar alt={share.patron.username} src={share.patron.avatar}/>
                         <Typography px={1}>{share.patron.username}</Typography>
                     </Box>
 

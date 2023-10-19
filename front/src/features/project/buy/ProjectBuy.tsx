@@ -3,8 +3,7 @@ import {useLocation} from "react-router-dom";
 import {Avatar, Box, Card, CardContent, CardHeader, CardMedia, Link, Stack, Typography} from "@mui/material";
 import {Project} from "../../../models/Project";
 import BuySharesForm from "./BuySharesForm";
-import {cutTheTail} from "../../../utils";
-import dayjs from "dayjs";
+import {cutTheTail, formatDate} from "../../../utils";
 import {DESCRIPTION_LONG_PREVIEW_LENGTH} from "../../../Constants";
 
 
@@ -38,7 +37,7 @@ function ProjectBuy() {
 
                     <CardContent>
                         <Typography variant="subtitle1" gutterBottom>
-                            {`${dayjs(project.created_on).format('MMMM DD, YYYY')} - ${dayjs(project.deadline).format('MMMM DD, YYYY')}`}
+                            {`${formatDate(project.created_on)} - ${formatDate(project.deadline)}`}
                         </Typography>
                         <Typography component="div" variant="h5">
                             {project.title}

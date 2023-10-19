@@ -16,12 +16,11 @@ import {
     Stack,
     Typography
 } from '@mui/material';
-import { Link as RouterLink } from "react-router-dom";
+import {Link as RouterLink} from "react-router-dom";
 
-import {getProgressPercentage, isSaleOpen} from "../../utils";
+import {formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
 import {Project} from "../../models/Project";
-import Spacer from "../../components/common/Spacer";
-import dayjs from "dayjs";
+import HSpacer from "../../components/common/HSpacer";
 
 
 const TruncatedText = styled((props: any) => {
@@ -56,7 +55,7 @@ export default function ProjectCard(props: { project: Project }) {
                             />
                         </Box>
                     </div>}
-                    subheader={`${dayjs(project.created_on).format('MMMM DD, YYYY')} - ${dayjs(project.deadline).format('MMMM DD, YYYY')}`}
+                    subheader={`${formatDate(project.created_on)} - ${formatDate(project.deadline)}`}
                 />
                 <CardActionArea href={`/${project.id}`}>
                     <CardMedia
@@ -107,9 +106,9 @@ export default function ProjectCard(props: { project: Project }) {
                                     <strong>{project.shares_num}</strong> shares sold
                                 </Typography>
                             </Box>
-                            <Spacer/>
+                            <HSpacer/>
 
-                            <Button variant="outlined" component={RouterLink} to={`/${project.id}/buy`} state={{project:project}}>Purchase</Button>
+                            <Button variant="outlined" component={RouterLink} to={`/${project.id}/buy`} state={{project:project}}>Support</Button>
 
                         </Stack>
 

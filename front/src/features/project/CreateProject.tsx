@@ -24,7 +24,7 @@ import {grey} from '@mui/material/colors';
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {TransitionGroup} from 'react-transition-group';
-import {API_BASE_URL, PROJECT_ENDPOINT, SITE_NAME} from "../../Constants";
+import {API_BASE_URL, DATE_FORMAT, PROJECT_ENDPOINT, SITE_NAME} from "../../Constants";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {createTheme, ThemeProvider} from '@mui/material/styles'
 import {MUIRichTextEditor} from '@agbishop/mui-rte';
@@ -387,7 +387,7 @@ const CreateProject = () => {
                                 }
                             </RadioGroup>}/>
 
-                        <div>The project will be open until <strong>{deadlineDate.format('MMMM DD, YYYY')}</strong>.
+                        <div>The project will be open until <strong>{deadlineDate.format(DATE_FORMAT)}</strong>.
                         </div>
                     </Grid>
 

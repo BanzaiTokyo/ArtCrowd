@@ -12,3 +12,4 @@ export const ARTCROWD_CONTRACT = 'KT1WYtFLhxmBkLYJrBg4xaA6sStnMuTwZA57'//'KT1HTG
 export const FEE_PCT = 3
 export const DESCRIPTION_PREVIEW_LENGTH = 70;
 export const DESCRIPTION_LONG_PREVIEW_LENGTH = 500;
+export const DATE_FORMAT = 'MMMM DD, YYYY';
