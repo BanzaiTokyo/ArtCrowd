@@ -22,7 +22,8 @@ function BuySharesForm(params: BuySharesFormParams) {
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
     const [selectedNumShares, setSelectedNumShares] = useState(1);
-    const [sharesLeft, setSharesLeft] = useState<number | undefined>(project.max_shares && project.max_shares - project.shares_num - selectedNumShares );
+    const maxSharesCanBuy = project.max_shares ? project.max_shares - project.shares_num : undefined
+    const [sharesLeft, setSharesLeft] = useState<number | undefined>(maxSharesCanBuy ? maxSharesCanBuy - selectedNumShares : undefined );
 
     useEffect(()=>{
         project.max_shares && setSharesLeft(project.max_shares - project.shares_num - selectedNumShares);
@@ -35,7 +36,7 @@ function BuySharesForm(params: BuySharesFormParams) {
             return
         }
         try {
-            const response = await fetchWithAuth(API_BASE_URL + `${project.id}/buy`, {
+            const response = await fetchWithAuth(API_BASE_URL + `projects/${project.id}/buy`, {
                 method: 'POST',
                 body: JSON.stringify({ophash}),
             });
@@ -68,9 +69,7 @@ function BuySharesForm(params: BuySharesFormParams) {
     const validateNumSharesInput = (e: any) => {
         if (
             !/[0-9]/.test(e.key) &&
-            e.key !== "Backspace" &&
-            e.key !== "Delete" &&
-            e.key !== "Enter"
+            !["Backspace", "Delete", "Enter", "ArrowUp", "ArrowDown"].includes(e.key)
         ) {
             e.preventDefault();
         }
@@ -79,7 +78,7 @@ function BuySharesForm(params: BuySharesFormParams) {
     return (
         <Paper sx={{padding: '1rem'}}>
             <Typography variant="h6">Purchase project shares</Typography>
-            {sharesLeft && <Typography variant="subtitle1" gutterBottom>
+            {!!maxSharesCanBuy && !!sharesLeft && <Typography variant="subtitle1" gutterBottom>
                 available shares: <strong>{sharesLeft}</strong></Typography>}
             <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -92,6 +91,8 @@ function BuySharesForm(params: BuySharesFormParams) {
                     inputProps={{
                         ...register("num_shares", {required: true, valueAsNumber: true}),
                         inputMode: "numeric",
+                        min: 1,
+                        max: maxSharesCanBuy,
                         pattern: "[0-9]*"
                     }}
 

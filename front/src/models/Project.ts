@@ -12,7 +12,6 @@ export interface Project {
     description: string;
     id: number;
     image: string;
-    commission_pct: number;
     updates: ProjectUpdate[];
     last_update?: ProjectUpdate;
     max_shares?: number;
