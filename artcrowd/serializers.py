@@ -36,10 +36,10 @@ class UserBriefSerializer(serializers.ModelSerializer):
         fields = ['username', 'avatar']
 
 
-class UserSerializer(UserBriefSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
-        fields = UserBriefSerializer.Meta.fields + ['first_name', 'description']
+        fields = ['username', 'avatar', 'cover_picture', 'description']
 
 
 class ShareAsNestedObj(serializers.ModelSerializer):
@@ -92,7 +92,9 @@ class ProjectSerializer(ProjectBriefSerializer):
                 ) and ((timezone.now() - obj.last_update_time).total_seconds() > settings.UPDATE_POST_INTERVAL)
 
     def get_can_buy_shares(self, obj):
-        return self.context['request'].user.id and obj.status == models.Project.OPEN
+        return self.context['request'].user.id and obj.status == models.Project.OPEN and (
+                    not obj.max_shares or obj.shares_num < obj.max_shares
+                )
 
     class Meta:
         model = models.Project

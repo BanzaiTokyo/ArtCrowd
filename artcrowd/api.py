@@ -154,7 +154,7 @@ class BuySharesView(generics.CreateAPIView):
         if not (share := models.Share.objects.filter(ophash=ophash).first()):
             share = models.Share.objects.create(project=project, patron=self.request.user, quantity=num_shares,
                                                 ophash=serializer.validated_data['ophash'])
-            if project.max_shares and project.shares_sum > project.max_shares:
+            if project.max_shares and project.shares_num > project.max_shares:
                 project.status = project.SALE_CLOSED
                 project.save()
                 blockchain.update_project_status(project)

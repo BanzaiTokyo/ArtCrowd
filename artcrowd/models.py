@@ -9,7 +9,7 @@ from . import settings
 class User(AbstractUser):
     tzwallet = models.CharField(max_length=36, null=True, blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-    first_name = models.CharField(verbose_name='Name', max_length=150, blank=True)
+    cover_picture = models.ImageField(upload_to='cover_pictures/', null=True, blank=True)
     description = RichTextField(blank=True)
 
 
@@ -31,9 +31,10 @@ class Project(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField()
     status = models.CharField(max_length=50, default=NEW, choices=(
-        (NEW, NEW), (OPEN, OPEN), (APPROVED_BY_ARTIST, APPROVED_BY_ARTIST),
+        (NEW, NEW), (APPROVED_BY_ARTIST, APPROVED_BY_ARTIST),
         (REJECTED_BY_ARTIST, REJECTED_BY_ARTIST), (REJECTED_BY_ADMIN, REJECTED_BY_ADMIN),
-        (REFUND_REQUESTED, REFUND_REQUESTED), (SALE_CLOSED, SALE_CLOSED), (COMPLETED, COMPLETED), (REFUNDED, REFUNDED)
+        (OPEN, OPEN), (REFUND_REQUESTED, REFUND_REQUESTED), (SALE_CLOSED, SALE_CLOSED),
+        (COMPLETED, COMPLETED), (REFUNDED, REFUNDED)
     ))
 
     share_price = models.IntegerField()
@@ -67,12 +68,12 @@ class Project(models.Model):
 
     @cached_property
     def shares_num(self):
-        return self.project_shares.count()
+        total_quantity = self.project_shares.aggregate(total_quantity=models.Sum('quantity'))['total_quantity']
+        return total_quantity or 0  #self.project_shares.count()
 
     @cached_property
     def shares_sum(self):
-        total_quantity = self.project_shares.aggregate(total_quantity=models.Sum('quantity'))['total_quantity']
-        return (total_quantity or 0) * self.share_price
+        return self.shares_num * self.share_price
 
 
 class ProjectStatus(models.Model):

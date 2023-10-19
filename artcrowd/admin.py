@@ -11,16 +11,31 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'tzwallet')
     #list_filter = ('is_staff', 'is_superuser', 'groups')
     search_fields = ('username', 'tzwallet')
+    readonly_fields = ('avatar_tag', 'cover_picture_tag')
     ordering = ('username',)
-
     fieldsets = (
         (None, {'fields': ('username', )}),
-        ('Personal info', {'fields': ('tzwallet', 'first_name', 'description', 'email', 'avatar')}),
+        ('Personal info', {'fields': ('tzwallet', 'description', 'email', 'avatar', 'avatar_tag',
+                                      'cover_picture', 'cover_picture_tag')}),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
+
+    @admin.display(description='Avatar')
+    def avatar_tag(self, obj):
+        return mark_safe('<img src="{}" height="50"/>'.format(obj.avatar.url)) if obj.avatar.url else ''
+
+    @admin.display(description='Cover Picture')
+    def cover_picture_tag(self, obj):
+        return mark_safe('<img src="{}" height="200"/>'.format(obj.cover_picture.url)) if obj.cover_picture.url else ''
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        fields.insert(fields.index('avatar')+1, 'avatar_tag')
+        fields.insert(fields.index('cover_picture')+1, 'cover_picture_tag')
+        return fields
 
 
 @admin.register(models.Project)
