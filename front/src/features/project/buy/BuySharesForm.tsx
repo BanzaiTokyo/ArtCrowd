@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {SubmitHandler, useForm} from "react-hook-form"
 import {useAuth} from "../../../components/AuthContext";
 import {API_BASE_URL} from "../../../Constants";
@@ -23,11 +23,6 @@ function BuySharesForm(params: BuySharesFormParams) {
     const fetchWithAuth = configureFetch(token);
     const [selectedNumShares, setSelectedNumShares] = useState(1);
     const maxSharesCanBuy = project.max_shares ? project.max_shares - project.shares_num : undefined
-    const [sharesLeft, setSharesLeft] = useState<number | undefined>(maxSharesCanBuy ? maxSharesCanBuy - selectedNumShares : undefined );
-
-    useEffect(()=>{
-        project.max_shares && setSharesLeft(project.max_shares - project.shares_num - selectedNumShares);
-    }, [selectedNumShares])
 
     const onSubmit: SubmitHandler<IBuyShares> = async (data) => {
         console.log(data)
@@ -59,8 +54,8 @@ function BuySharesForm(params: BuySharesFormParams) {
     };
 
     const onNumSharesUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (sharesLeft != null && Number(event.target.value) > Number(project.max_shares)) {
-            event.preventDefault();
+        if (project.max_shares == null || Number(event.target.value) > (project.max_shares - project.shares_num)) {
+            event.preventDefault(); // is this line needed?
             return;
         }
         setSelectedNumShares(Number(event.target.value));
@@ -77,14 +72,12 @@ function BuySharesForm(params: BuySharesFormParams) {
 
     return (
         <Paper sx={{padding: '1rem'}}>
-            <Typography variant="h6">Purchase project shares</Typography>
-            {!!maxSharesCanBuy && !!sharesLeft && <Typography variant="subtitle1" gutterBottom>
-                available shares: <strong>{sharesLeft}</strong></Typography>}
+            <Typography variant="h6" gutterBottom>Purchase project shares</Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
 
                 <TextField
                     // defaultValue={1}
-                    sx={{maxWidth: '260px'}}
+                    sx={{width: '260px'}}
                     type="number"
                     value={selectedNumShares}
                     label="Number of shares"
@@ -102,7 +95,9 @@ function BuySharesForm(params: BuySharesFormParams) {
                     helperText={errors.num_shares?.message}
                 />
 
-                <Typography>You will pay: <strong>{selectedNumShares * project.share_price}</strong> Tez + <strong>{calculateCommission(selectedNumShares * project.share_price)}</strong> Tez (commission)</Typography>
+                <Typography>You will pay: <strong>{selectedNumShares * project.share_price}</strong> Tez
+                    + <strong>{calculateCommission(selectedNumShares * project.share_price)}</strong> Tez
+                    (commission)</Typography>
                 <br/>
 
                 {/*<input {...register("num_shares", {required: true, valueAsNumber: true})} /> shares*/}
@@ -113,6 +108,6 @@ function BuySharesForm(params: BuySharesFormParams) {
             </form>
         </Paper>
     );
-};
+}
 
 export default BuySharesForm;
