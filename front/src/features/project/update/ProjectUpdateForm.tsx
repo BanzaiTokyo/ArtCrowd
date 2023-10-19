@@ -1,8 +1,8 @@
 import React from 'react';
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
-import {useAuth} from "../../components/AuthContext";
-import {API_BASE_URL} from "../../Constants";
-import {configureFetch} from "../../utils";
+import {useAuth} from "../../../components/AuthContext";
+import {API_BASE_URL} from "../../../Constants";
+import {configureFetch} from "../../../utils";
 
 interface IProjectUpdate {
     image: File

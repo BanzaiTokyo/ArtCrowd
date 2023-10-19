@@ -5,7 +5,7 @@ import {useAuth} from "../../components/AuthContext";
 import {configureFetch, formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
 import {API_BASE_URL, FEE_PCT, PROJECT_ENDPOINT} from "../../Constants";
 import BuySharesForm from "./buy/BuySharesForm";
-import ProjectUpdateForm from "./ProjectUpdateForm";
+import ProjectUpdateForm from "./update/ProjectUpdateForm";
 import {Project} from "../../models/Project";
 import ProjectUpdateComponent from "./update/ProjectUpdateComponent";
 import HSpacer from "../../components/common/HSpacer";
