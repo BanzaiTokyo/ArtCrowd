@@ -84,27 +84,7 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
     image = HyperlinkedSorlImageField('100', read_only=True)
     last_update = ProjectUpdateSerializer(read_only=True)
     shares_num = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = models.Project
-        fields = ['id', 'title', 'description', 'image', 'created_on', 'deadline',
-                  'share_price', 'min_shares', 'max_shares', 'shares_num',
-                  'royalty_pct', 'artist', 'presenter', 'last_update', 'status'
-                  ]
-
-
-class ProjectSerializer(ProjectBriefSerializer):
-    image = serializers.ImageField(read_only=True)
-    shares = ShareAsNestedObj(many=True, read_only=True)
-    updates = ProjectUpdateSerializer(many=True, read_only=True)
-    can_post_update = serializers.SerializerMethodField()
     can_buy_shares = serializers.SerializerMethodField()
-
-    def get_can_post_update(self, obj):
-        return self.context['request'].user.id and (
-                    self.context['request'].user.id in (obj.artist_id, obj.presenter_id)
-                    or self.context['request'].user.is_superuser
-                ) and ((timezone.now() - obj.last_update_time).total_seconds() > settings.UPDATE_POST_INTERVAL)
 
     def get_can_buy_shares(self, obj):
         return self.context['request'].user.id and obj.status == models.Project.OPEN and (
@@ -113,8 +93,28 @@ class ProjectSerializer(ProjectBriefSerializer):
 
     class Meta:
         model = models.Project
+        fields = ['id', 'title', 'description', 'image', 'created_on', 'deadline',
+                  'share_price', 'min_shares', 'max_shares', 'shares_num',
+                  'royalty_pct', 'artist', 'presenter', 'last_update', 'status', 'can_buy_shares'
+                  ]
+
+
+class ProjectSerializer(ProjectBriefSerializer):
+    image = serializers.ImageField(read_only=True)
+    shares = ShareAsNestedObj(many=True, read_only=True)
+    updates = ProjectUpdateSerializer(many=True, read_only=True)
+    can_post_update = serializers.SerializerMethodField()
+
+    def get_can_post_update(self, obj):
+        return self.context['request'].user.id and (
+                    self.context['request'].user.id in (obj.artist_id, obj.presenter_id)
+                    or self.context['request'].user.is_superuser
+                ) and ((timezone.now() - obj.last_update_time).total_seconds() > settings.UPDATE_POST_INTERVAL)
+
+    class Meta:
+        model = models.Project
         fields = ProjectBriefSerializer.Meta.fields + [
-                    'updates', 'shares_sum', 'shares', 'can_post_update', 'can_buy_shares']
+                    'updates', 'shares_sum', 'shares', 'can_post_update']
 
 
 class ProjectListSerializer(serializers.Serializer):
