@@ -1,14 +1,28 @@
 import React, {useEffect, useState} from 'react';
-import {Link as RouterLink, useParams,} from 'react-router-dom';
-import {Avatar, Box, Button, CardHeader, LinearProgress, Link, Stack, Typography} from "@mui/material";
+import {useParams,} from 'react-router-dom';
+import {
+    Alert,
+    Avatar,
+    Box,
+    Button,
+    CardHeader,
+    Divider,
+    ImageList,
+    ImageListItem,
+    ImageListItemBar,
+    LinearProgress,
+    Link,
+    Stack,
+    Typography
+} from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
-import {configureFetch, formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
-import {API_BASE_URL, FEE_PCT, PROJECT_ENDPOINT} from "../../Constants";
-import BuySharesForm from "./buy/BuySharesForm";
-import ProjectUpdateForm from "./update/ProjectUpdateForm";
+import {configureFetch, cutTheTail, formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
+import {API_BASE_URL, DESCRIPTION_LONG_PREVIEW_LENGTH, PROJECT_ENDPOINT} from "../../Constants";
 import {Project} from "../../models/Project";
-import ProjectUpdateComponent from "./update/ProjectUpdateComponent";
 import HSpacer from "../../components/common/HSpacer";
+import SharesInfo from "./SharesInfo";
+import ProjectUpdateForm from "./update/ProjectUpdateForm";
+import BuySharesForm from "./buy/BuySharesForm";
 
 const IMAGE_STYLE_FULL_SIZE = {maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'};
 
@@ -17,6 +31,7 @@ const ProjectPage = () => {
     const fetchWithAuth = configureFetch(token);
     const {projectId} = useParams();
     const [project, setProject] = useState<Project>();
+    const [isNftInfoVisible, setIsNftInfoVisible] = useState(false);
 
     useEffect(() => {
         if (projectId && (token != null)) {
@@ -28,7 +43,11 @@ const ProjectPage = () => {
         }
     }, [projectId, token])
 
-    if (project === undefined) {
+    function toggleNftInfoVisible() {
+        setIsNftInfoVisible((prev) => !prev);
+    }
+
+    if (project == null) {
         return <LinearProgress/>
     }
     return !project ? <>Project not found</> : <>
@@ -56,18 +75,15 @@ const ProjectPage = () => {
              style={{maxWidth: '100%', maxHeight: '900px', objectFit: 'contain'}}/>
 
         <div>
-            <Stack direction={'row'}>
+            <Stack direction={'row'} alignItems="center">
                 <Box>
                     <Typography variant={'h3'}>{project.title}</Typography>
                 </Box>
+
                 <HSpacer/>
-                <Box>
-                    <Button variant={'contained'}
-                            size={'large'}
-                            component={RouterLink}
-                            to={`/${project.id}/buy`}
-                            state={{project: project}}>Support</Button>
-                </Box>
+
+                <SharesInfo project={project}/>
+
             </Stack>
 
 
@@ -90,23 +106,54 @@ const ProjectPage = () => {
 
             <div dangerouslySetInnerHTML={{__html: project.description}}/>
 
-            <Typography variant={'h4'}>Shares</Typography>
-            <div>price per share: {project.share_price} Tez</div>
-            <div>purchased: {project.shares_num}</div>
-            <div>reserve: {project.min_shares}</div>
+            <Button
+                onClick={toggleNftInfoVisible}>{isNftInfoVisible ? 'Hide ' : 'Show '} NFT information</Button>
 
-            <h2>NFT</h2>
-            <div>At the end of the project NFT will be issued with the number of editions corresponding to the number of
-                shares purchased
-            </div>
-            <div>Royalties: {project.royalty_pct} % to the artist, {FEE_PCT} % to the gallery</div>
+            {isNftInfoVisible &&
+            <Box sx={{borderTop: 1, borderColor: 'divider'}}>
+                <Alert severity={'info'}>Once the project is successfully completed. We will mint an NFT with the final
+                    image. Here's the information you will find in the NFT's metadata.</Alert>
+                <Typography variant="h6">NFT description</Typography>
+                <Typography variant="body1" gutterBottom>
+                    {project.nft_description}
+                </Typography>
 
-            {project.updates && <Typography variant={'h4'}>Project updates</Typography>}
-            {project.updates && project.updates.map((update) => {
-                return (
-                    <ProjectUpdateComponent key={JSON.stringify(update)} update={update}/>
-                )
-            })}
+                {project.royalty_pct != null && project.royalty_pct > 0 &&
+                <><Typography variant="h6" gutterBottom>Royalties</Typography>
+                    <Typography variant="body1" gutterBottom>
+                        The artist will receive <strong>{project.royalty_pct}</strong>%
+                    </Typography></>}
+            </Box>
+            }
+
+            <Divider sx={{paddingTop: '1rem'}}/>
+
+            <Box sx={{paddingTop: '1rem'}}>
+                {project.updates && <Typography variant={'h4'}>Project updates</Typography>}
+                <ImageList sx={{width: 500, height: 450}}>
+                    {project.updates.map((update) => (
+                        // TODO: find a way to link to update page
+                        // <a href={`/${project.id}/${update.id}`}>
+                            <ImageListItem key={update.image}>
+                                <img
+                                    srcSet={`${update.image}`}
+                                    src={`${update.image}`}
+                                    loading="lazy"
+                                    alt={`update from ${update.description}`}/>
+                                <ImageListItemBar
+                                    title={<Typography variant="subtitle2">{formatDate(update.created_on)}</Typography>}
+                                    subtitle={
+                                        <Typography>
+                                            {update.description != null && cutTheTail(DESCRIPTION_LONG_PREVIEW_LENGTH, update.description)}
+                                        </Typography>}
+                                    position="below"
+                                />
+                            </ImageListItem>
+                        // </a>
+                    ))}
+                </ImageList>
+            </Box>
+
             {project.can_post_update && <ProjectUpdateForm projectId={projectId}/>}
 
             <h2>Patrons</h2>

@@ -24,4 +24,5 @@ export interface Project {
     shares: Share[];
     status: ProjectStatus;
     title: string;
+    nft_description:string;
 }

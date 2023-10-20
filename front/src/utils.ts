@@ -9,11 +9,11 @@ export function cutTheMiddle(str: string) {
     return str;
 }
 
-export function cutTheTail(str: string, len: number) {
+export function cutTheTail(len: number, str?: string) {
     if (str != null) {
         return str.substr(0, len) + (str.length > len ? '...' : '');
     }
-    return str;
+    return '';
 }
 
 export function formatTez(amount: number): string {

@@ -9,7 +9,6 @@ import {
     CardContent,
     CardHeader,
     CardMedia,
-    Divider,
     LinearProgress,
     Link,
     Paper,
@@ -20,7 +19,7 @@ import {Project} from "../../../models/Project";
 import BuySharesForm from "./BuySharesForm";
 import {cutTheTail, formatDate} from "../../../utils";
 import {API_BASE_URL, DESCRIPTION_LONG_PREVIEW_LENGTH} from "../../../Constants";
-import SellIcon from '@mui/icons-material/Sell';
+import SharesInfo from "../SharesInfo";
 
 function BuySharesPage() {
 
@@ -96,47 +95,15 @@ function BuySharesPage() {
                         </Typography>
                         <Box>
                             <span
-                                dangerouslySetInnerHTML={{__html: cutTheTail(project.description, DESCRIPTION_LONG_PREVIEW_LENGTH)}}/>
+                                dangerouslySetInnerHTML={{__html: cutTheTail(DESCRIPTION_LONG_PREVIEW_LENGTH, project.description)}}/>
                         </Box>
 
 
-                        <Box sx={{paddingTop: '2rem'}}>
+                        <Box sx={{paddingTop: '2rem', paddingBottom:'1rem'}}>
                             <Typography variant={"h5"}>Shares</Typography>
                         </Box>
-                        {/*<Divider orientation="horizontal" variant={'fullWidth'} flexItem/>*/}
 
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                width: 'fit-content',
-                                border: (theme) => `1px solid ${theme.palette.divider}`,
-                                borderRadius: 1,
-                                bgcolor: 'background.paper',
-                                color: 'text.secondary',
-                                '& svg': {
-                                    m: 1.5,
-                                },
-                                '& hr': {
-                                    mx: 0.5,
-                                },
-                                marginTop: '1rem'
-                            }}
-                        >
-                            {project.max_shares && <>
-                                <Box sx={{padding: '1rem'}}>
-                                    Total: <strong>{project.max_shares}</strong>
-                                </Box>
-                                <Divider orientation="vertical" variant="middle" flexItem/>
-                                <Box sx={{padding: '1rem'}}>
-                                    Sold: <strong>{project.shares_num}</strong>
-                                </Box>
-                                <Divider orientation="vertical" variant="middle" flexItem/>
-                            </>}
-                            <Box sx={{paddingRight: '1rem', display: 'flex', alignItems: 'center'}}>
-                                <SellIcon sx={{fontSize: 30, padding: 0}} color={'secondary'}/>
-                                <strong>{project.share_price}</strong>&nbsp;Tez</Box>
-                        </Box>
+                        <SharesInfo project={project}/>
 
                     </CardContent>
                 </Stack>
