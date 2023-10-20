@@ -108,7 +108,7 @@ export default function ProjectCard(props: { project: Project }) {
                             </Box>
                             <HSpacer/>
 
-                            <Button variant="outlined" component={RouterLink} to={`/${project.id}/buy`} state={{project:project}}>Support</Button>
+                            <Button variant="outlined" component={RouterLink} to={`/${project.id}/buy`} disabled={!project.can_buy_shares} state={{project:project}}>Buy</Button>
 
                         </Stack>
 

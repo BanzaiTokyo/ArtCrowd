@@ -54,7 +54,7 @@ function BuySharesForm(params: BuySharesFormParams) {
     };
 
     const onNumSharesUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (project.max_shares == null || Number(event.target.value) > (project.max_shares - project.shares_num)) {
+        if (project.max_shares != null && Number(event.target.value) > (project.max_shares - project.shares_num)) {
             event.preventDefault(); // is this line needed?
             return;
         }

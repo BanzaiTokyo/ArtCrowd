@@ -1,13 +1,16 @@
-import React from 'react';
-import {useLocation} from "react-router-dom";
+import React, {useEffect, useState} from 'react';
+import {useLocation, useParams} from "react-router-dom";
 import {
+    Alert,
     Avatar,
     Box,
     Card,
+    CardActionArea,
     CardContent,
     CardHeader,
     CardMedia,
     Divider,
+    LinearProgress,
     Link,
     Paper,
     Stack,
@@ -16,33 +19,61 @@ import {
 import {Project} from "../../../models/Project";
 import BuySharesForm from "./BuySharesForm";
 import {cutTheTail, formatDate} from "../../../utils";
-import {DESCRIPTION_LONG_PREVIEW_LENGTH} from "../../../Constants";
-
+import {API_BASE_URL, DESCRIPTION_LONG_PREVIEW_LENGTH} from "../../../Constants";
+import SellIcon from '@mui/icons-material/Sell';
 
 function BuySharesPage() {
 
     const location = useLocation();
-    const project = location.state?.project as Project;
+    const projectFromParent = location.state?.project as Project;
+    const [project, setProject] = useState(projectFromParent);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isErrorLoadingProject, setIsErrorLoadingProject] = useState(false);
+    const {projectId} = useParams();
 
-    if (project == null) return (<div>couldn't load the project</div>);
+
+    useEffect(() => {
+        if (projectFromParent == null) {
+            setIsLoading(true);
+            fetch(`${API_BASE_URL}projects/${projectId}`).then(response => {
+                if (!response.ok) {
+                    setIsErrorLoadingProject(true);
+                } else return response.json()
+            })
+                .then((response: Project) => {
+                    setProject(response);
+                    setIsLoading(false);
+                }).catch(error => {
+                console.log('there was an error loading the project: ', error)
+            });
+        }
+    }, [])
+
+    if (isErrorLoadingProject) return (<Alert severity="error">There was an error loading the project.</Alert>);
+
+    if (project == null || isLoading) return (<LinearProgress/>);
+
+
     return (
         <Stack direction={'column'} spacing={2}>
             {/*project preview*/}
             <Card sx={{display: 'flex'}}>
-                <CardMedia
-                    component="img"
-                    sx={{
-                        maxHeight: 200,
-                        maxWidth: 200,
-                        objectFit: 'contain',
-                        margin: 0,
-                        padding: 0,
-                        flexGrow: 0,
-                        alignSelf: 'start'
-                    }}
-                    image={project.image}
-                    alt={project.title}
-                />
+                <CardActionArea href={`/${project.id}`}
+                                sx={{
+                                    maxHeight: 200,
+                                    maxWidth: 200,
+                                    objectFit: 'contain',
+                                    margin: 0,
+                                    padding: 0,
+                                    flexGrow: 0,
+                                    alignSelf: 'start'
+                                }}>
+                    <CardMedia
+                        component="img"
+                        image={project.image}
+                        alt={project.title}
+                    />
+                </CardActionArea>
 
                 <Stack direction={'column'}>
                     <CardHeader
@@ -69,6 +100,11 @@ function BuySharesPage() {
                         </Box>
 
 
+                        <Box sx={{paddingTop: '2rem'}}>
+                            <Typography variant={"h5"}>Shares</Typography>
+                        </Box>
+                        {/*<Divider orientation="horizontal" variant={'fullWidth'} flexItem/>*/}
+
                         <Box
                             sx={{
                                 display: 'flex',
@@ -87,15 +123,19 @@ function BuySharesPage() {
                                 marginTop: '1rem'
                             }}
                         >
-                            {project.max_shares && <><Box sx={{padding: '1rem'}}>Total
-                                shares: <strong>{project.max_shares}</strong></Box>
+                            {project.max_shares && <>
+                                <Box sx={{padding: '1rem'}}>
+                                    Total: <strong>{project.max_shares}</strong>
+                                </Box>
                                 <Divider orientation="vertical" variant="middle" flexItem/>
-                                <Box sx={{padding: '1rem'}}>Available
-                                    shares: <strong>{project.max_shares - project.shares_num}</strong></Box>
+                                <Box sx={{padding: '1rem'}}>
+                                    Sold: <strong>{project.shares_num}</strong>
+                                </Box>
                                 <Divider orientation="vertical" variant="middle" flexItem/>
                             </>}
-                            <Box sx={{padding: '1rem'}}>Price per share:
-                                 <strong>{project.share_price}</strong> Tez</Box>
+                            <Box sx={{paddingRight: '1rem', display: 'flex', alignItems: 'center'}}>
+                                <SellIcon sx={{fontSize: 30, padding: 0}} color={'secondary'}/>
+                                <strong>{project.share_price}</strong>&nbsp;Tez</Box>
                         </Box>
 
                     </CardContent>
@@ -105,10 +145,13 @@ function BuySharesPage() {
             </Card>
 
 
-            <Paper sx={{padding: '1rem'}}>
-                <Typography variant="h6" gutterBottom>Purchase project shares</Typography>
-                <BuySharesForm project={project}/>
-            </Paper>
+            {project.can_buy_shares ?
+                <Paper sx={{padding: '1rem'}}>
+                    <Typography variant="h6" gutterBottom>Purchase project shares</Typography>
+                    <BuySharesForm project={project}/>
+                </Paper>
+                : <Alert severity="info">This project's shares are currently not available for sale.</Alert>
+            }
 
         </Stack>
     );
