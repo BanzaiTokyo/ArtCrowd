@@ -41,14 +41,20 @@ const ProfilePage = () => {
                 {profile.description && <div dangerouslySetInnerHTML={{__html: profile.description}}/>}
             </Grid>
         </Grid>
-        <Typography variant="h2" sx={sectionHeaderStyle}>Projects I created</Typography>
-        <ProjectCardsList artist={username} />
+        {!!profile.created_projects_num && <>
+            <Typography variant="h2" sx={sectionHeaderStyle}>Projects I created</Typography>
+            <ProjectCardsList artist={username} />
+        </>}
 
-        <Typography variant="h2" sx={sectionHeaderStyle}>Projects I support</Typography>
-        <ProjectCardsList patron={username} />
+        {!!profile.supported_projects_num && <>
+            <Typography variant="h2" sx={sectionHeaderStyle}>Projects I support</Typography>
+            <ProjectCardsList patron={username} />
+        </>}
 
-        <Typography variant="h2" sx={sectionHeaderStyle}>Projects I present</Typography>
-        <ProjectCardsList presenter={username} />
+        {!!profile.presented_projects_num && <>
+            <Typography variant="h2" sx={sectionHeaderStyle}>Projects I present</Typography>
+            <ProjectCardsList presenter={username} />
+        </>}
     </>
 };
 
