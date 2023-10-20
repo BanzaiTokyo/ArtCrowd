@@ -29,8 +29,9 @@ def create_project(project: models.Model):
     try:
         contract.storage['projects'][project.id]
     except KeyError:
-        ops.append(contract.create_project(project.id, project.share_price * 1_000_000))
-    #ops.append(contract.update_project_status(project.status, project.id))
+        ops = [contract.create_project(project.id, project.share_price * 1_000_000)]
+    # change to "else" when updated contract is deployed
+    ops.append(contract.update_project_status(project.status, project.id))
     tezos.bulk(*ops).send(min_confirmations=0)
 
 
@@ -58,7 +59,10 @@ def generate_tokens(project: models.Model, metadata_url):
     for share in project.shares:
         shares[share.patron.tzwallet] += share.quantity
     wallets = list(shares.keys())
-    ops = [contract.update_project_status(project.status, project.id)]
+    ops = [
+        contract.update_project_status(project.status, project.id),
+        contract.withdraw_mutez(project.artist.tzwallet, project.shares_sum * 1_000_000)
+    ]
     token_generated = False
     for i in range(0, len(wallets), 500):
         params = [{"token": {"existing": token_id}, "amount": shares[wallet], "to_": wallet} for wallet in wallets[i: i+500]]

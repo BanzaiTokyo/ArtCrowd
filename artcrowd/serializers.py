@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.contrib.auth import authenticate
+from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.conf import settings
@@ -37,9 +38,23 @@ class UserBriefSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    created_projects_num = serializers.SerializerMethodField()
+    supported_projects_num = serializers.SerializerMethodField()
+    presented_projects_num = serializers.SerializerMethodField()
+
+    def get_created_projects_num(self, obj):
+        return models.Project.objects.filter(artist=obj).count()
+
+    def get_supported_projects_num(self, obj):
+        return models.Share.objects.filter(patron=obj).values('project_id').distinct().count()
+
+    def get_presented_projects_num(self, obj):
+        return models.Project.objects.filter(presenter=obj).count()
+
     class Meta:
         model = models.User
-        fields = ['username', 'avatar', 'cover_picture', 'description']
+        fields = ['username', 'avatar', 'cover_picture', 'description', 'created_projects_num',
+                  'supported_projects_num', 'presented_projects_num']
 
 
 class ShareAsNestedObj(serializers.ModelSerializer):
