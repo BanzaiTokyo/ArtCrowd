@@ -5,7 +5,7 @@ import {API_BASE_URL} from "../../../Constants";
 import {calculateCommission, configureFetch} from "../../../utils";
 import {buyShares} from "../../../Tezos";
 import {Project} from "../../../models/Project";
-import {Button, Paper, TextField, Typography} from "@mui/material";
+import {Button, TextField, Typography} from "@mui/material";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 interface IBuyShares {
@@ -71,42 +71,67 @@ function BuySharesForm(params: BuySharesFormParams) {
     };
 
     return (
-        <Paper sx={{padding: '1rem'}}>
-            <Typography variant="h6" gutterBottom>Purchase project shares</Typography>
-            <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
 
-                <TextField
-                    // defaultValue={1}
-                    sx={{width: '260px'}}
-                    type="number"
-                    value={selectedNumShares}
-                    label="Number of shares"
-                    inputProps={{
-                        ...register("num_shares", {required: true, valueAsNumber: true}),
-                        inputMode: "numeric",
-                        min: 1,
-                        max: maxSharesCanBuy,
-                        pattern: "[0-9]*"
-                    }}
+            <TextField
+                // defaultValue={1}
+                sx={{width: '260px'}}
+                type="number"
+                value={selectedNumShares}
+                label="Number of shares"
+                inputProps={{
+                    ...register("num_shares", {required: true, valueAsNumber: true}),
+                    inputMode: "numeric",
+                    min: 1,
+                    max: maxSharesCanBuy,
+                    pattern: "[0-9]*"
+                }}
 
-                    error={!!errors.num_shares}
-                    onKeyDown={validateNumSharesInput}
-                    onChange={onNumSharesUpdate}
-                    helperText={errors.num_shares?.message}
-                />
+                error={!!errors.num_shares}
+                onKeyDown={validateNumSharesInput}
+                onChange={onNumSharesUpdate}
+                helperText={errors.num_shares?.message}
+            />
 
-                <Typography>You will pay: <strong>{selectedNumShares * project.share_price}</strong> Tez
-                    + <strong>{calculateCommission(selectedNumShares * project.share_price)}</strong> Tez
-                    (commission)</Typography>
-                <br/>
+            {/*<Stack direction={'row'}>*/}
+            {/*    <IconButton size={'large'}*/}
+            {/*                color={'primary'}*/}
+            {/*                sx={{*/}
+            {/*                    width: '50px',*/}
+            {/*                    height: '30px',*/}
+            {/*                    borderRadius: 5,*/}
+            {/*                    border: "1px solid",*/}
+            {/*                    borderColor: "primary.main",*/}
+            {/*                }}>*/}
+            {/*        <RemoveIcon/>*/}
+            {/*    </IconButton>*/}
+            {/*    <Box sx={{width:'1rem'}}/>*/}
+            {/*    <div>{selectedNumShares}</div>*/}
+            {/*    <Box sx={{width:'1rem'}}/>*/}
+            {/*    <IconButton size={'large'}*/}
+            {/*                color={'primary'}*/}
+            {/*                sx={{*/}
+            {/*                    width: '50px',*/}
+            {/*                    height: '30px',*/}
+            {/*                    borderRadius: 5,*/}
+            {/*                    border: "1px solid",*/}
+            {/*                    borderColor: "primary.main",*/}
+            {/*                }}>*/}
+            {/*        <AddIcon/>*/}
+            {/*    </IconButton>*/}
+            {/*</Stack>*/}
 
-                {/*<input {...register("num_shares", {required: true, valueAsNumber: true})} /> shares*/}
-                <Button type="submit" variant="contained" size={'large'} startIcon={<FavoriteIcon/>}>Buy</Button>
+            <Typography>You will pay: <strong>{selectedNumShares * project.share_price}</strong> Tez
+                + <strong>{calculateCommission(selectedNumShares * project.share_price)}</strong> Tez
+                (commission)</Typography>
+            <br/>
 
-                <br/>
-                {errors.num_shares && <span>{errors.num_shares.message || 'field required'}</span>}
-            </form>
-        </Paper>
+            {/*<input {...register("num_shares", {required: true, valueAsNumber: true})} /> shares*/}
+            <Button type="submit" variant="contained" size={'large'} startIcon={<FavoriteIcon/>}>Buy</Button>
+
+            <br/>
+            {errors.num_shares && <span>{errors.num_shares.message || 'field required'}</span>}
+        </form>
     );
 }
 

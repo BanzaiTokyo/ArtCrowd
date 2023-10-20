@@ -10,8 +10,7 @@ import {AuthProvider} from "./components/AuthContext";
 import LoginByWallet from "./components/LoginByWallet";
 import Layout from "./components/Layout";
 import About from "./features/about/About";
-import Home from "./features/home/Home";
-import ProjectBuy from "./features/project/buy/ProjectBuy";
+import BuySharesPage from "./features/project/buy/BuySharesPage";
 import ProjectCardsList from "./features/home/ProjectCardsList";
 
 function App() {
@@ -25,7 +24,7 @@ function App() {
                         <Route path="/login-by-password" element={<Login/>}/>
                         <Route path="/login" element={<LoginByWallet/>}/>
                         <Route path="/profile/:username" element={<ProfilePage/>}/>
-                        <Route path="/:projectId/buy" element={<ProjectBuy />}/>
+                        <Route path="/:projectId/buy" element={<BuySharesPage />}/>
                         <Route path="/:projectId" element={<ProjectPage/>}/>
                         <Route path="/create" element={<CreateProject/>}/>
                         <Route path="/tezos" element={<TezosPage/>}/>
