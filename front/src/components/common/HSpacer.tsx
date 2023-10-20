@@ -1,10 +1,10 @@
 import {Box} from "@mui/material";
 import React from "react";
 
-export  default function HSpacer(props: {maxWidthPx?: number}) {
+export  default function HSpacer(props: {maxWidth?: string}) {
     return <Box sx={{
         display: 'flex',
         flexGrow: 1,
-        maxWidth: props.maxWidthPx ? props.maxWidthPx : '100%'
+        maxWidth: props.maxWidth ? props.maxWidth : '100%'
     }}/>;
 }
