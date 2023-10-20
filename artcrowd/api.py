@@ -15,7 +15,7 @@ from rest_framework.authtoken import views as auth_views
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from . import models, serializers, blockchain
+from . import models, serializers, blockchain, wallet_auth
 
 
 class LoginByWalletView(auth_views.ObtainAuthToken):
@@ -152,7 +152,8 @@ class BuySharesView(generics.CreateAPIView):
         ophash = serializer.validated_data['ophash']
         num_shares, wallet = blockchain.get_bought_shares(ophash)
         if not (share := models.Share.objects.filter(ophash=ophash).first()):
-            share = models.Share.objects.create(project=project, patron=self.request.user, quantity=num_shares,
+            patron = models.User.get_or_create_from_wallet(tzwallet=wallet)
+            share = models.Share.objects.create(project=project, patron=patron, quantity=num_shares,
                                                 ophash=serializer.validated_data['ophash'])
             if project.max_shares and project.shares_num > project.max_shares:
                 project.status = project.SALE_CLOSED

@@ -87,7 +87,7 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
     can_buy_shares = serializers.SerializerMethodField()
 
     def get_can_buy_shares(self, obj):
-        return self.context['request'].user.id and obj.status == models.Project.OPEN and (
+        return bool(self.context['request'].user.id) and obj.status == models.Project.OPEN and (
                     not obj.max_shares or obj.shares_num < obj.max_shares
                 )
 
@@ -114,7 +114,7 @@ class ProjectSerializer(ProjectBriefSerializer):
     class Meta:
         model = models.Project
         fields = ProjectBriefSerializer.Meta.fields + [
-                    'updates', 'shares_sum', 'shares', 'can_post_update']
+                    'updates', 'shares_sum', 'shares', 'nft_description', 'can_post_update']
 
 
 class ProjectListSerializer(serializers.Serializer):
@@ -126,7 +126,8 @@ class ProjectListSerializer(serializers.Serializer):
 class ProjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
-        fields = ['id', 'title', 'description', 'image', 'deadline', 'share_price', 'min_shares', 'max_shares']
+        fields = ['id', 'title', 'description', 'image', 'deadline', 'share_price', 'min_shares', 'max_shares',
+                  'nft_description']
 
     title = serializers.CharField(min_length=5, max_length=100)
     deadline = serializers.DateTimeField(

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.utils.functional import cached_property
 from django.db import models
 from sorl.thumbnail import ImageField
@@ -11,6 +11,17 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     cover_picture = models.ImageField(upload_to='cover_pictures/', null=True, blank=True)
     description = RichTextField(blank=True)
+
+    @classmethod
+    def get_or_create_from_wallet(cls, tzwallet):
+        user = User.objects.filter(tzwallet=tzwallet).first()
+        if not user:
+            user = User(username=tzwallet, tzwallet=tzwallet)
+            artists = Group.objects.get(name='Artist')
+            user.save()
+            user.groups.add(artists)
+            user.save()
+        return user
 
 
 class Project(models.Model):
