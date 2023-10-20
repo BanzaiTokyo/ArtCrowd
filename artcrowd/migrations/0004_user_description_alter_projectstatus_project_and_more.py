@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('artcrowd', '0003_project_ntf_description_alter_project_status'),
+        ('artcrowd', '0003_project_nft_description_alter_project_status'),
     ]
 
     operations = [

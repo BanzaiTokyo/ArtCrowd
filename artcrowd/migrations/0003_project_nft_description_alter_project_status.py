@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='project',
-            name='ntf_description',
+            name='nft_description',
             field=models.TextField(default=''),
             preserve_default=False,
         ),

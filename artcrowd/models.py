@@ -52,7 +52,7 @@ class Project(models.Model):
     min_shares = models.IntegerField(null=True, blank=True)
     max_shares = models.IntegerField(null=True, blank=True)
     royalty_pct = models.IntegerField(blank=True, default=0)
-    ntf_description = models.TextField()
+    nft_description = models.TextField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
