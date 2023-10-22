@@ -122,8 +122,12 @@ const ProjectPage = () => {
             {project.can_buy_shares && <BuySharesForm project={project}/>}
 
             {/*TODO: work on this part when we have projects presented by*/}
-            {project.presenter && <>
-                presented by:
+            {project.presenter && <Stack direction={'row'}
+                                         justifyContent="flex-start"
+                                         alignItems="center"
+                                         spacing={2}
+            >
+               <Typography> presented by:</Typography>
                 <CardHeader
                     avatar={
                         <a href={`/profile/${encodeURIComponent(project.presenter.username)}`}>
@@ -136,7 +140,7 @@ const ProjectPage = () => {
                                 variant={'h6'}>{project.presenter.username}</Typography></Link>
                     </div>}
                 />
-            </>}
+            </Stack>}
 
             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                 <Tabs value={tabVal} onChange={handleTabChange} aria-label="basic tabs example">
