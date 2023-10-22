@@ -10,7 +10,7 @@ import {
     CardHeader,
     CardMedia,
     LinearProgress,
-    Link,
+    Link, Skeleton,
     Stack,
     Tab,
     Tabs,
@@ -127,7 +127,7 @@ const ProjectPage = () => {
                                          alignItems="center"
                                          spacing={2}
             >
-               <Typography> presented by:</Typography>
+                <Typography> presented by:</Typography>
                 <CardHeader
                     avatar={
                         <a href={`/profile/${encodeURIComponent(project.presenter.username)}`}>
@@ -177,12 +177,12 @@ const ProjectPage = () => {
                         <Card sx={{maxWidth: 345}}
                               key={`update from ${formatDate(update.created_on)}`}>
                             <CardActionArea href={`/${project.id}/${update.id}`}>
-                                <CardMedia
+                                {update.image != null ? <CardMedia
                                     component="img"
                                     height="140"
                                     image={update.image}
                                     alt={`update from ${formatDate(update.created_on)}`}
-                                />
+                                />:  <Skeleton variant="rectangular" height={140} />}
 
                                 <CardContent>
                                     <Typography gutterBottom variant="body2" component="div">
