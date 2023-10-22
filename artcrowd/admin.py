@@ -38,11 +38,22 @@ class CustomUserAdmin(UserAdmin):
         return fields
 
 
+class ProjectUpdate(admin.StackedInline):
+    extra = 0
+    model = models.ProjectUpdate
+    readonly_fields = ('preview', 'created_on')
+    ordering = ("-created_on", )
+
+    def preview(self, obj):
+        return mark_safe(f'<img src="{obj.image.url}" style="max-width: 200px; max-height: 200px" />')
+
+
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist', 'created_on', 'status')
     list_filter = ('status', )
     search_fields = ('title', 'artist__username')
+    inlines = [ProjectUpdate]
 
     def get_readonly_fields(self, request, obj=None):
         self.request = request

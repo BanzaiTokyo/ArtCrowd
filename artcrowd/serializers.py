@@ -70,7 +70,7 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ProjectUpdate
-        fields = ['description', 'image', 'created_on']
+        fields = ['id', 'description', 'image', 'created_on']
 
     def validate(self, data):
         if not data.get('description') and not data.get('image'):
@@ -87,7 +87,7 @@ class ProjectBriefSerializer(serializers.ModelSerializer):
     can_buy_shares = serializers.SerializerMethodField()
 
     def get_can_buy_shares(self, obj):
-        return bool(self.context['request'].user.id) and obj.status == models.Project.OPEN and (
+        return obj.status == models.Project.OPEN and (
                     not obj.max_shares or obj.shares_num < obj.max_shares
                 )
 
