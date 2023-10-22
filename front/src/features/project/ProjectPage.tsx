@@ -4,34 +4,61 @@ import {
     Alert,
     Avatar,
     Box,
-    Button,
+    Card,
+    CardActionArea,
+    CardContent,
     CardHeader,
-    Divider,
-    ImageList,
-    ImageListItem,
-    ImageListItemBar,
+    CardMedia,
     LinearProgress,
     Link,
     Stack,
+    Tab,
+    Tabs,
     Typography
 } from "@mui/material";
 import {useAuth} from "../../components/AuthContext";
-import {configureFetch, cutTheTail, formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
-import {API_BASE_URL, DESCRIPTION_LONG_PREVIEW_LENGTH, PROJECT_ENDPOINT} from "../../Constants";
+import {configureFetch, cutTheTail, extractPlainText, formatDate, getProgressPercentage, isSaleOpen} from "../../utils";
+import {API_BASE_URL, DESCRIPTION_PREVIEW_LENGTH, PROJECT_ENDPOINT} from "../../Constants";
 import {Project} from "../../models/Project";
 import HSpacer from "../../components/common/HSpacer";
 import SharesInfo from "./SharesInfo";
 import ProjectUpdateForm from "./update/ProjectUpdateForm";
 import BuySharesForm from "./buy/BuySharesForm";
 
-const IMAGE_STYLE_FULL_SIZE = {maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'};
+// const IMAGE_STYLE_FULL_SIZE = {maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'};
+
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+    const {children, value, index, ...other} = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{paddingTop: '1rem'}}>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
+}
 
 const ProjectPage = () => {
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
     const {projectId} = useParams();
     const [project, setProject] = useState<Project>();
-    const [isNftInfoVisible, setIsNftInfoVisible] = useState(false);
+    const [tabVal, setTabVal] = React.useState(0);
 
     useEffect(() => {
         if (projectId && (token != null)) {
@@ -43,13 +70,22 @@ const ProjectPage = () => {
         }
     }, [projectId, token])
 
-    function toggleNftInfoVisible() {
-        setIsNftInfoVisible((prev) => !prev);
-    }
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setTabVal(newValue);
+    };
 
     if (project == null) {
         return <LinearProgress/>
     }
+
+    function a11yProps(index: number) {
+        return {
+            id: `simple-tab-${index}`,
+            'aria-controls': `simple-tabpanel-${index}`,
+        };
+    }
+
     return !project ? <>Project not found</> : <>
         <CardHeader
             avatar={
@@ -79,13 +115,11 @@ const ProjectPage = () => {
                 <Box>
                     <Typography variant={'h3'}>{project.title}</Typography>
                 </Box>
-
                 <HSpacer/>
-
                 <SharesInfo project={project}/>
-
             </Stack>
 
+            {project.can_buy_shares && <BuySharesForm project={project}/>}
 
             {/*TODO: work on this part when we have projects presented by*/}
             {project.presenter && <>
@@ -104,71 +138,85 @@ const ProjectPage = () => {
                 />
             </>}
 
-            <div dangerouslySetInnerHTML={{__html: project.description}}/>
-
-            <Button
-                onClick={toggleNftInfoVisible}>{isNftInfoVisible ? 'Hide ' : 'Show '} NFT information</Button>
-
-            {isNftInfoVisible &&
-            <Box sx={{borderTop: 1, borderColor: 'divider'}}>
-                <Alert severity={'info'}>Once the project is successfully completed. We will mint an NFT with the final
-                    image. Here's the information you will find in the NFT's metadata.</Alert>
-                <Typography variant="h6">NFT description</Typography>
-                <Typography variant="body1" gutterBottom>
-                    {project.nft_description}
-                </Typography>
-
-                {project.royalty_pct != null && project.royalty_pct > 0 &&
-                <><Typography variant="h6" gutterBottom>Royalties</Typography>
+            <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                <Tabs value={tabVal} onChange={handleTabChange} aria-label="basic tabs example">
+                    <Tab label="Project description" {...a11yProps(0)} />
+                    <Tab label="NFT information" {...a11yProps(1)} />
+                </Tabs>
+            </Box>
+            <CustomTabPanel value={tabVal} index={0}>
+                <div dangerouslySetInnerHTML={{__html: project.description}}/>
+            </CustomTabPanel>
+            <CustomTabPanel value={tabVal} index={1}>
+                <Box sx={{borderTop: 1, borderColor: 'divider'}}>
+                    <Alert severity={'info'}>Once the project is successfully completed. We will mint an NFT with the
+                        final
+                        image. Here's the information you will find in the NFT's metadata.</Alert>
+                    <br/>
+                    <Typography variant="h6">NFT description</Typography>
                     <Typography variant="body1" gutterBottom>
-                        The artist will receive <strong>{project.royalty_pct}</strong>%
+                        {project.nft_description}
+                    </Typography>
+
+                    {project.royalty_pct != null && project.royalty_pct > 0 &&
+                    <><Typography variant="h6" gutterBottom>Royalties: <strong>{project.royalty_pct}</strong>%
                     </Typography></>}
-            </Box>
-            }
+                </Box> </CustomTabPanel>
 
-            <Divider sx={{paddingTop: '1rem'}}/>
 
-            <Box sx={{paddingTop: '1rem'}}>
-                {project.updates && <Typography variant={'h4'}>Project updates</Typography>}
-                <ImageList sx={{width: 500, height: 450}}>
+            {project.updates != null && project.updates.length > 0 && <Box sx={{paddingTop: '1rem'}}>
+                <Typography variant={'h4'}>Project updates</Typography>
+                <br/>
+
+                <Stack direction={'row'} spacing={{xs: 1, sm: 2}} flexWrap="wrap" useFlexGap>
                     {project.updates.map((update) => (
-                        // TODO: find a way to link to update page
-                        // <a href={`/${project.id}/${update.id}`}>
-                            <ImageListItem key={update.image}>
-                                <img
-                                    srcSet={`${update.image}`}
-                                    src={`${update.image}`}
-                                    loading="lazy"
-                                    alt={`update from ${update.description}`}/>
-                                <ImageListItemBar
-                                    title={<Typography variant="subtitle2">{formatDate(update.created_on)}</Typography>}
-                                    subtitle={
-                                        <Typography>
-                                            {update.description != null && cutTheTail(DESCRIPTION_LONG_PREVIEW_LENGTH, update.description)}
-                                        </Typography>}
-                                    position="below"
+                        <Card sx={{maxWidth: 345}}
+                              key={`update from ${formatDate(update.created_on)}`}>
+                            <CardActionArea href={`/${project.id}/${update.id}`}>
+                                <CardMedia
+                                    component="img"
+                                    height="140"
+                                    image={update.image}
+                                    alt={`update from ${formatDate(update.created_on)}`}
                                 />
-                            </ImageListItem>
-                        // </a>
+
+                                <CardContent>
+                                    <Typography gutterBottom variant="body2" component="div">
+                                        {formatDate(update.created_on)}
+                                    </Typography>
+                                    <Typography variant="body1" color="text.secondary">
+                                        {update.description != null && cutTheTail(DESCRIPTION_PREVIEW_LENGTH, extractPlainText(update.description))}
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
                     ))}
-                </ImageList>
-            </Box>
+                </Stack>
+            </Box>}
 
-            {project.can_post_update && <ProjectUpdateForm projectId={projectId}/>}
+            {project.can_post_update &&
+            <Box sx={{paddingTop: '1rem', borderTop: 1, borderColor: 'divider', marginTop: '1rem'}}>
+                <Typography variant={'h4'}>Post an update to the project</Typography>
+                <ProjectUpdateForm projectId={projectId}/>
+            </Box>}
 
-            <h2>Patrons</h2>
-            {project.can_buy_shares && <BuySharesForm project={project}/>}
-            {project.shares.map((share: Record<string, any>, i: number) => {
-                return <div key={i.toString()}>
-                    <Box sx={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                        <Typography px={2}>{formatDate(share.purchased_on)}</Typography>
-                        <Typography px={2}>{share.quantity} share(s)</Typography>
-                        <Avatar alt={share.patron.username} src={share.patron.avatar}/>
-                        <Typography px={1}>{share.patron.username}</Typography>
-                    </Box>
 
-                </div>
-            })}
+            {project.shares != null && project.shares.length > 0 &&
+            <Box sx={{paddingTop: '1rem', borderTop: 1, borderColor: 'divider', marginTop: '1rem'}}>
+                <><Typography variant={'h4'}>Patrons</Typography>
+                    {project.shares.map((share: Record<string, any>, i: number) => {
+                        return (
+                            <Stack direction={'row'} spacing={{xs: 1, sm: 2}} key={i.toString()}
+                                   sx={{paddingTop: '1rem'}}>
+                                <Typography>{formatDate(share.purchased_on)}</Typography>
+                                <Typography px={2}>{share.quantity} share(s)</Typography>
+                                <Avatar alt={share.patron.username} src={share.patron.avatar}/>
+                                <Typography px={1}>{share.patron.username}</Typography>
+                            </Stack>
+                        )
+                    })}
+                </>
+            </Box>}
         </div>
     </>;
 };

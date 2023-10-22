@@ -67,7 +67,7 @@ export const configureFetch = (token: string | null) => {
 export function extractPlainText(htmlString: string) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
-    return doc.body.textContent;
+    return doc.body.textContent || '';
 }
 
 export function isSaleOpen(status: ProjectStatus) {

@@ -28,11 +28,11 @@ function SharesInfo(props: { project: Project }) {
         >
             {project.max_shares && <>
                 <Box sx={{padding: '1rem'}}>
-                    Total: <strong>{project.max_shares}</strong>
+                    Total:&nbsp;<strong>{project.max_shares}</strong>
                 </Box>
                 <Divider orientation="vertical" variant="middle" flexItem/>
                 <Box sx={{padding: '1rem'}}>
-                    Sold: <strong>{project.shares_num}</strong>
+                    Sold:&nbsp;<strong>{project.shares_num}</strong>
                 </Box>
                 <Divider orientation="vertical" variant="middle" flexItem/>
             </>}

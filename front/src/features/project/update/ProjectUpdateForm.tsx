@@ -1,8 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
 import {useAuth} from "../../../components/AuthContext";
 import {API_BASE_URL} from "../../../Constants";
 import {configureFetch} from "../../../utils";
+import {Alert, Box, Button, Grid, Typography} from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import {createTheme, ThemeProvider} from "@mui/material/styles";
+import {MUIRichTextEditor} from "@agbishop/mui-rte";
+import {stateToHTML} from "draft-js-export-html";
+import HSpacer from "../../../components/common/HSpacer";
 
 interface IProjectUpdate {
     image: File
@@ -10,8 +16,19 @@ interface IProjectUpdate {
 }
 
 function ProjectUpdateForm(params: any) {
+    const {
+        reset,
+        control,
+        setValue,
+        setError,
+        clearErrors,
+        handleSubmit,
+        formState: {errors}
+    } = useForm<IProjectUpdate>()
+
     const {projectId} = params;
-    const {register, handleSubmit, control, setError, formState: {errors}} = useForm<IProjectUpdate>()
+    const [imageUrl, setImageUrl] = useState('');
+
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
 
@@ -50,33 +67,95 @@ function ProjectUpdateForm(params: any) {
         }
     };
 
+    const theme = createTheme()
+
+    const drawPickedImage = (event: any) => {
+        clearErrors('image')
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                setValue('image', file);
+                setImageUrl(reader.result as string);
+            };
+        }
+    };
+
     return (
-        <div>
-            <h3>Post an update to the project</h3>
+        <Box>
+
+
             <form encType={'multipart/form-data'} onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label>Description:</label>
-                    <input {...register("description", {required: true})} />
-                    {errors.description && <span>{errors.description.message || 'field required'}</span>}
-                </div>
-                <div>
-                    <label>Image:</label>
-                    <Controller
-                        name="image"
-                        control={control}
-                        render={({field}) => (
-                            <input
-                                type="file"
-                                onChange={(e) => {
-                                    field.onChange(e.target.files![0]);
-                                }}
-                            />
+                <Grid container rowSpacing={3} columnSpacing={2}>
+                    <Grid item xs={12}>
+                        <Alert severity="info">
+                            <Typography component={'p'}>You can post an update to your project once a day. We encourage you to do so. This stimulates the engagement of your fans and brings more people. </Typography>
+                        </Alert>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button component="label" variant="outlined" startIcon={<CloudUploadIcon/>}>
+                            Upload an image update
+                            <Controller name="image" control={control} rules={{required: 'Image is required'}}
+                                        render={() =>
+                                            <input
+                                                name="image"
+                                                type="file" accept="image/*" style={{display: 'none'}} id="image-input"
+                                                onChange={drawPickedImage}
+                                            />
+                                        }/>
+                        </Button>
+                    </Grid>
+
+                    {imageUrl && <Grid item xs={12} sx={{marginBottom: "1rem"}}>
+                        <img src={imageUrl as string}
+                             alt="Uploaded Project Preview"
+                             style={{maxWidth: '100%', maxHeight: '900px'}}/>
+                        {errors.image && (
+                            <Typography variant="caption" color="error">
+                                {errors.image.message}
+                            </Typography>
                         )}
-                    />
-                </div>
-                <button type="submit">Submit</button>
+                    </Grid>}
+
+                    <Grid item xs={12}>
+                        <Controller
+                            name="description" control={control} rules={{required: "This field is required",}}
+                            render={({field}) => (
+                                <ThemeProvider theme={theme}>
+                                    <Box px={2} sx={{
+                                        border: `1px solid ${errors.description ? theme.palette.error.main : theme.palette.grey[400]}`,
+                                        borderRadius: '4px',
+                                        minHeight: '10em'
+                                    }}>
+                                        <MUIRichTextEditor
+                                            label="Let your fans know how the work on your project is going."
+                                            controls={['title', 'bold', 'italic', 'underline', 'numberList', 'bulletList', 'quote', 'code', 'clear', 'strikethrough']}
+                                            onChange={(state: any) => {
+                                                const content = state.getCurrentContent();
+                                                field.onChange(content.hasText() ? stateToHTML(content) : '');
+                                            }}
+                                        />
+                                    </Box>
+                                    {errors.description && (
+                                        <Typography variant="caption" color="error" mx={2}>
+                                            {errors.description.message}
+                                        </Typography>
+                                    )}
+                                </ThemeProvider>
+                            )}
+                        />
+                    </Grid>
+
+
+                    <Grid container item xs={12} justifyContent="flex-end" alignItems="center">
+                        <Button variant="contained" color={'inherit'} onClick={() => reset()}>Cancel</Button>
+                        <HSpacer maxWidth={'1rem'}/>
+                        <Button type="submit" variant="contained">Send update</Button>
+                    </Grid>
+                </Grid>
             </form>
-        </div>
+        </Box>
     );
 }
 
