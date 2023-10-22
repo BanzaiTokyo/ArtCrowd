@@ -206,12 +206,24 @@ const ProjectPage = () => {
                 <><Typography variant={'h4'}>Patrons</Typography>
                     {project.shares.map((share: Record<string, any>, i: number) => {
                         return (
-                            <Stack direction={'row'} spacing={{xs: 1, sm: 2}} key={i.toString()}
-                                   sx={{paddingTop: '1rem'}}>
+                            <Stack key={i.toString()}
+                                   direction={'row'}
+                                   spacing={{xs: 1, sm: 2}}
+                                   sx={{paddingTop: '1rem'}}
+                                   justifyContent="flex-start"
+                                   alignItems="center"
+                            >
                                 <Typography>{formatDate(share.purchased_on)}</Typography>
                                 <Typography px={2}>{share.quantity} share(s)</Typography>
-                                <Avatar alt={share.patron.username} src={share.patron.avatar}/>
-                                <Typography px={1}>{share.patron.username}</Typography>
+
+                                <Link href={`/profile/${encodeURIComponent(share.patron.username)}`} underline="none">
+                                    <Avatar
+                                        alt={share.patron.username} src={share.patron.avatar}/>
+                                </Link>
+                                <Link href={`/profile/${encodeURIComponent(share.patron.username)}`}
+                                      underline="none">
+                                    <Typography px={1}>{share.patron.username}</Typography>
+                                </Link>
                             </Stack>
                         )
                     })}

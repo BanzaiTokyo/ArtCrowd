@@ -90,7 +90,7 @@ function ProjectUpdateForm(params: any) {
                 <Grid container rowSpacing={3} columnSpacing={2}>
                     <Grid item xs={12}>
                         <Alert severity="info">
-                            <Typography component={'p'}>You can post an update to your project once a day. We encourage you to do so. This stimulates the engagement of your fans and brings more people. </Typography>
+                            <Typography component={'p'}>You can post an update to your project once a day. We encourage you to do so. This stimulates the engagement of your fans and brings more people to follow your project. </Typography>
                         </Alert>
                     </Grid>
                     <Grid item xs={12}>
