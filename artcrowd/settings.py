@@ -197,7 +197,6 @@ CKEDITOR_CONFIGS = {
 PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1WYtFLhxmBkLYJrBg4xaA6sStnMuTwZA57')  # KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq
 GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x')
 TEZOS_NETWORK = os.getenv('TEZOS_NETWORK', 'ghostnet')
-TEZOS_API = os.getenv('TEZOS_API', 'https://api.ghost.tzstats.com/explorer/')
 TEZOS_WALLET_KEYFILE = os.getenv('TEZOS_WALLET_KEYFILE', 'wallet.json')
 TOKEN_METADATA = os.getenv('TOKEN_METADATA', 'metadata.json')
 UPDATE_POST_INTERVAL = 12 * 3600  # in seconds

@@ -74,13 +74,14 @@ def generate_tokens(project: models.Model, metadata_url):
     return result
 
 
-def get_bought_shares(ophash):
-    for i in range(3):
-        tezos_op = requests.get(settings.TEZOS_API + 'op/' + ophash).json()
-        if isinstance(tezos_op, list):
-            return tezos_op[0]['parameters']['value']['num_shares'], tezos_op[0]['sender']
-        time.sleep(5)
-    raise Exception(f'operation {ophash} not found')
+def get_bought_shares(op_hash, block_hash):
+    block = tezos.shell.blocks[block_hash]()
+    tezos_op = next((op for oplist in block['operations'] for op in oplist if op['hash'] == op_hash), None)
+    if tezos_op:
+        params = tezos_op['contents'][0]
+        if params['destination'] == settings.PROJECTS_CONTRACT:
+            return params['parameters']['value']['args'][0]['int'], params['source']
+    raise Exception(f'operation {op_hash} not found')
 
 
 def buy_shares(project, num_shares):

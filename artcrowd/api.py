@@ -89,7 +89,7 @@ class ProjectsList(generics.ListAPIView):
     def get_queryset(self):
         subquery = models.Share.objects.filter(project=OuterRef('pk')).values('project').annotate(
             shares_num=Sum('quantity')).values('shares_num')
-        queryset = models.Project.objects.annotate(shares_num=Subquery(subquery)).all()
+        queryset = models.Project.objects.annotate(shares_num=Subquery(subquery)).distinct()
         return queryset
 
     serializer_class = serializers.ProjectBriefSerializer
@@ -115,7 +115,8 @@ class ProjectUpdate(generics.CreateAPIView):
         project_id = self.kwargs.get('pk')
         project = get_object_or_404(models.Project, pk=project_id)
 
-        if self.request.user != project.artist and self.request.user != project.presenter:
+        if (self.request.user != project.artist and self.request.user != project.presenter
+            and not self.request.user.is_superuser):
             raise PermissionDenied('Only project artist or presenter can post updates')
         if (timezone.now() - project.last_update_time).total_seconds() < settings.UPDATE_POST_INTERVAL:
             raise BadRequest('You cannot post project updates more often than once in 12 hours')
@@ -154,7 +155,8 @@ class BuySharesView(generics.CreateAPIView):
     def perform_create(self, serializer):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
         ophash = serializer.validated_data['ophash']
-        num_shares, wallet = blockchain.get_bought_shares(ophash)
+        blockhash = serializer.validated_data.pop('blockhash')
+        num_shares, wallet = blockchain.get_bought_shares(ophash, blockhash)
         if not (share := models.Share.objects.filter(ophash=ophash).first()):
             patron = models.User.get_or_create_from_wallet(tzwallet=wallet)
             share = models.Share.objects.create(project=project, patron=patron, quantity=num_shares,
