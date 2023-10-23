@@ -141,6 +141,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 THUMBNAIL_COLORSPACE = None
 THUMBNAIL_PRESERVE_FORMAT = True
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+DATA_MAX_MEMORY_SIZE = 20 * 1024 * 1024
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field

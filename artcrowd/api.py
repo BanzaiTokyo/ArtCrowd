@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import path
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied, BadRequest
-from django.db.models import Count
+from django.db.models import Count, Sum, Subquery, OuterRef
 from django.utils import timezone
 from django.http import HttpResponse
 from django.conf import settings
@@ -84,10 +84,14 @@ class ProjectsList(generics.ListAPIView):
                 queryset = queryset.filter(project_shares__patron__username=patron_param)
             if presenter_param:
                 queryset = queryset.filter(presenter__username=presenter_param)
-
             return queryset
 
-    queryset = models.Project.objects.annotate(shares_num=Count('project_shares__id')).all()
+    def get_queryset(self):
+        subquery = models.Share.objects.filter(project=OuterRef('pk')).values('project').annotate(
+            shares_num=Sum('quantity')).values('shares_num')
+        queryset = models.Project.objects.annotate(shares_num=Subquery(subquery)).all()
+        return queryset
+
     serializer_class = serializers.ProjectBriefSerializer
     filter_backends = [OpenFilterBackend, OrderingFilter]
 

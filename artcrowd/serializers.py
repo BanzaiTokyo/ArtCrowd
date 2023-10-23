@@ -127,7 +127,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
         fields = ['id', 'title', 'description', 'image', 'deadline', 'share_price', 'min_shares', 'max_shares',
-                  'nft_description']
+                  'nft_description', 'royalty_pct']
 
     title = serializers.CharField(min_length=5, max_length=100)
     deadline = serializers.DateTimeField(
