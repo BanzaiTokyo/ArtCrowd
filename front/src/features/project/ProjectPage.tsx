@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams,} from 'react-router-dom';
+import {Link as RouterLink} from "react-router-dom";
 import {
     Alert,
     Avatar,
@@ -175,8 +176,8 @@ const ProjectPage = () => {
                 <Stack direction={'row'} spacing={{xs: 1, sm: 2}} flexWrap="wrap" useFlexGap>
                     {project.updates.map((update) => (
                         <Card sx={{maxWidth: 345}}
-                              key={`update from ${formatDate(update.created_on)}`}>
-                            <CardActionArea href={`/${project.id}/${update.id}`}>
+                              key={`update from ${update.created_on}`}>
+                            <CardActionArea to={`/${project.id}/${update.id}`} state={{project:project}} component={RouterLink}>
                                 {update.image != null ? <CardMedia
                                     component="img"
                                     height="140"

@@ -12,6 +12,7 @@ import Layout from "./components/Layout";
 import About from "./features/about/About";
 import BuySharesPage from "./features/project/buy/BuySharesPage";
 import ProjectCardsList from "./features/home/ProjectCardsList";
+import UpdatePage from "./features/project/update/UpdatePage";
 
 function App() {
     return (
@@ -25,6 +26,7 @@ function App() {
                         <Route path="/login" element={<LoginByWallet/>}/>
                         <Route path="/profile/:username" element={<ProfilePage/>}/>
                         <Route path="/:projectId/buy" element={<BuySharesPage />}/>
+                        <Route path="/:projectId/:updateId" element={<UpdatePage />}/>
                         <Route path="/:projectId" element={<ProjectPage/>}/>
                         <Route path="/create" element={<CreateProject/>}/>
                         <Route path="/tezos" element={<TezosPage/>}/>
