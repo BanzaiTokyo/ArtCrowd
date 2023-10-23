@@ -1,6 +1,6 @@
 export const SITE_NAME = 'ArtCrowd'
 
-export const API_BASE_URL = 'https://api.artcrowd.org/api/'; //'http://localhost:8000/api/';
+export const API_BASE_URL = 'http://localhost:8000/api/';
 export const PROJECT_ENDPOINT = 'projects'
 
 export const TEZOS_URL = 'https://ghostnet.smartpy.io'

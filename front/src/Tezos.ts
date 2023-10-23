@@ -23,7 +23,9 @@ export const buyShares = async (projectId: number, sharePrice: number, numShares
                 .buy_shares(numShares, projectId)
                 .send({amount: Math.floor(numShares * sharePrice * (1 + FEE_PCT/100) * 1_000_000), mutez: true}))
             .then((op) => {
-                return op.confirmation(1).then(() => op.opHash)
+                return op.confirmation(1).then((result) => {
+                    return {blockhash: result!.block.hash, ophash: op.opHash}
+                })
             })
     } catch (error) {
         console.error(error)

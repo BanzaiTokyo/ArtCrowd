@@ -9,13 +9,19 @@ import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {MUIRichTextEditor} from "@agbishop/mui-rte";
 import {stateToHTML} from "draft-js-export-html";
 import HSpacer from "../../../components/common/HSpacer";
+import {Project} from "../../../models/Project";
 
 interface IProjectUpdate {
     image: File
     description: string
 }
 
-function ProjectUpdateForm(params: any) {
+interface IProjectUpdateFormParams {
+    projectId: string,
+    onSubmitCallback: any
+}
+
+function ProjectUpdateForm(params: IProjectUpdateFormParams) {
     const {
         reset,
         control,
@@ -26,11 +32,18 @@ function ProjectUpdateForm(params: any) {
         formState: {errors}
     } = useForm<IProjectUpdate>()
 
-    const {projectId} = params;
+    const {projectId, onSubmitCallback} = params;
     const [imageUrl, setImageUrl] = useState('');
 
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
+
+    const validateAtLeastOneField = (value: any, data: IProjectUpdate) => {
+        if (!data.image && !data.description) {
+          return "Either an image or description is required";
+        }
+        return true;
+    };
 
     const onSubmit: SubmitHandler<IProjectUpdate> = async (data) => {
         const formData = new FormData();
@@ -50,6 +63,7 @@ function ProjectUpdateForm(params: any) {
             });
             const responseData = await response.json();
             if (response.ok) {
+                onSubmitCallback(responseData)
                 //navigate(`${responseData.id}`)
             } else {
                 for (const field in responseData) {
@@ -89,13 +103,15 @@ function ProjectUpdateForm(params: any) {
                 <Grid container rowSpacing={3} columnSpacing={2}>
                     <Grid item xs={12}>
                         <Alert severity="info">
-                            <Typography component={'p'}>You can post an update to your project once a day. We encourage you to do so. This stimulates the engagement of your fans and brings more people to follow your project. </Typography>
+                            <Typography component={'p'}>You can post an update to your project once a day. We encourage
+                                you to do so. This stimulates the engagement of your fans and brings more people to
+                                follow your project. </Typography>
                         </Alert>
                     </Grid>
                     <Grid item xs={12}>
                         <Button component="label" variant="outlined" startIcon={<CloudUploadIcon/>}>
                             Upload an image update
-                            <Controller name="image" control={control} rules={{required: 'Image is required'}}
+                            <Controller name="image" control={control} rules={{validate: validateAtLeastOneField}}
                                         render={() =>
                                             <input
                                                 name="image"
@@ -119,7 +135,7 @@ function ProjectUpdateForm(params: any) {
 
                     <Grid item xs={12}>
                         <Controller
-                            name="description" control={control} rules={{required: "This field is required",}}
+                            name="description" control={control} rules={{validate: validateAtLeastOneField}}
                             render={({field}) => (
                                 <ThemeProvider theme={theme}>
                                     <Box px={2} sx={{
