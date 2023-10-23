@@ -8,7 +8,7 @@ import {useAuth} from "./AuthContext";
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LogoutIcon from '@mui/icons-material/Logout';
 import {useNavigate} from "react-router-dom";
-import {Box, Button} from "@mui/material";
+import {Box, Button, Link} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 
 
@@ -106,7 +106,8 @@ const FormPage: React.FC = () => {
     return profile ? (
         <Box>
             <IconButton aria-label="logout" onClick={handleLogout}><LogoutIcon/></IconButton>
-            {profile.username}
+
+            <Link href={`/profile/${encodeURIComponent(profile.username)}`} underline="none" sx={{ color: '#FFF' }}>{profile.username}</Link>
 
         </Box>) : (
         <div>
