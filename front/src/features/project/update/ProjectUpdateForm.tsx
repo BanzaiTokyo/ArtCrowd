@@ -33,7 +33,6 @@ function ProjectUpdateForm(params: any) {
     const fetchWithAuth = configureFetch(token);
 
     const onSubmit: SubmitHandler<IProjectUpdate> = async (data) => {
-        console.log(data)
         const formData = new FormData();
         for (const key in data) {
             // @ts-ignore

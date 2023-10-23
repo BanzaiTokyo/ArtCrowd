@@ -25,7 +25,6 @@ function BuySharesForm(params: BuySharesFormParams) {
     const maxSharesCanBuy = project.max_shares ? project.max_shares - project.shares_num : undefined
 
     const onSubmit: SubmitHandler<IBuyShares> = async (data) => {
-        console.log(data)
         const ophash = await buyShares(project.id, project.share_price, data.num_shares);
         if (!ophash) {
             return

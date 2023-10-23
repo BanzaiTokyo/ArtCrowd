@@ -17,7 +17,6 @@ function UpdatePage() {
     const [isErrorLoadingProject, setIsErrorLoadingProject] = useState(false);
     const {projectId, updateId} = useParams();
 
-    console.log('project from parent: ', projectFromParent)
     useEffect(() => {
         if (projectFromParent == null) {
             setIsLoading(true);

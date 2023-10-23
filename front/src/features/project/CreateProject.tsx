@@ -54,7 +54,6 @@ const CreateProject = () => {
     const {
         register,
         watch,
-        getValues,
         control,
         setValue,
         setError,
@@ -93,9 +92,6 @@ const CreateProject = () => {
 
 
     const onSubmit: SubmitHandler<INewProject> = async (data) => {
-
-        //FIXME: form values are here. but I have no idea how to convert this to formData
-        console.log(getValues())
 
         const formData = new FormData();
         for (const key in data) {
