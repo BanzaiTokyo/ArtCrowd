@@ -217,8 +217,8 @@ const ProjectPage = () => {
                                    justifyContent="flex-start"
                                    alignItems="center"
                             >
-                                <Typography>{formatDate(share.purchased_on)}</Typography>
-                                <Typography px={2}>{share.quantity} share(s)</Typography>
+                                <Typography sx={{minWidth:'150px'}}>{formatDate(share.purchased_on)}</Typography>
+                                <Typography px={2} sx={{minWidth:'150px'}}>{share.quantity} share(s)</Typography>
 
                                 <Link href={`/profile/${encodeURIComponent(share.patron.username)}`} underline="none">
                                     <Avatar
