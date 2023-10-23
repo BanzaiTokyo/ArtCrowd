@@ -24,7 +24,7 @@ export default function ProjectCardsList(props: {page?: number, [key: string]: a
         qs.delete('page');
 
         setIsLoading(true);
-        fetch(`${API_BASE_URL}projects?open=any&${qs}${orderBy}`)
+        fetch(`${API_BASE_URL}projects?open=true&${qs}${orderBy}`)
             .then(response => response.json())
             .then((response: ApiResponse<Project>) => {
                 setTotalRecords(response.count);
@@ -40,7 +40,7 @@ export default function ProjectCardsList(props: {page?: number, [key: string]: a
                 <LinearProgress/>
             </Container>}
 
-            {!isLoading && totalRecords / rowsPerPage > rowsPerPage &&
+            {!isLoading && totalRecords / rowsPerPage > 1 &&
             <Pagination showFirstButton
                         showLastButton={false}
                         count={Math.ceil(totalRecords / rowsPerPage)}

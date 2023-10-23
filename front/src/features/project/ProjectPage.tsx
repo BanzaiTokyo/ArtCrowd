@@ -62,7 +62,7 @@ const ProjectPage = () => {
     const [tabVal, setTabVal] = React.useState(0);
 
     useEffect(() => {
-        if (projectId && (token != null)) {
+        if (projectId) {
             fetchWithAuth(`${API_BASE_URL}${PROJECT_ENDPOINT}/${projectId}`)
                 .then(response => {
                     return response.ok ? response.json() : null
