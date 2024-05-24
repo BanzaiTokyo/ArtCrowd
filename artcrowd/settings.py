@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-&tr-pkg#udde!du2##4f23f**+4ps#z+vm@*hqtb#yf3d$u10d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'api.artcrowd.org']
+ALLOWED_HOSTS = ['localhost', 'api.artcrowd.org', '78.202.112.75']
 USE_X_FORWARDED_PROTO = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     #'sslserver',
     'sorl.thumbnail',
     'ckeditor',
+    'django_crontab',
     'artcrowd',
 ]
 
@@ -136,6 +137,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
+ROOT_URL = 'https://api.artcrowd.org'
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
@@ -194,9 +196,13 @@ CKEDITOR_CONFIGS = {
     },
 }
 
+CRONJOBS = [
+    ('0 * * * *', 'artcrowd.cron.close_expired_projects')
+]
+
 PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1WYtFLhxmBkLYJrBg4xaA6sStnMuTwZA57')  # KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq
-GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x')
+GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1GLXsZwLLJ4Lsiv7RqS8K9Pa93gZEQiGW3')  # KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x
 TEZOS_NETWORK = os.getenv('TEZOS_NETWORK', 'ghostnet')
-TEZOS_WALLET_KEYFILE = os.getenv('TEZOS_WALLET_KEYFILE', 'wallet.json')
+TEZOS_WALLET_KEYFILE = os.getenv('TEZOS_WALLET_KEYFILE', os.path.join(os.path.dirname(os.path.realpath(__file__)), '../wallet.json'))
 TOKEN_METADATA = os.getenv('TOKEN_METADATA', 'metadata.json')
 UPDATE_POST_INTERVAL = 12 * 3600  # in seconds

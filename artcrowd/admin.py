@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from sorl.thumbnail import get_thumbnail
@@ -48,12 +49,26 @@ class ProjectUpdate(admin.StackedInline):
         return mark_safe(f'<img src="{obj.image.url}" style="max-width: 200px; max-height: 200px" />')
 
 
+class ShareInline(admin.TabularInline):
+    extra = 0
+    model = models.Share
+    readonly_fields = ['project', 'patron', 'quantity', 'purchased_on', 'ophash']
+    ordering = ("-purchased_on", )
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist', 'created_on', 'status')
     list_filter = ('status', )
     search_fields = ('title', 'artist__username')
-    inlines = [ProjectUpdate]
+    inlines = [ProjectUpdate, ShareInline]
+    list_per_page = 20
 
     def get_readonly_fields(self, request, obj=None):
         self.request = request
@@ -75,15 +90,27 @@ class ProjectAdmin(admin.ModelAdmin):
         return fields
 
     def save_model(self, request, obj, form, change):
+        from django.db.models.expressions import RawSQL
+        from .models import Project, Share
+        from django.utils import timezone
+        projects = Project.objects.filter(pk__in=RawSQL(f'''
+            SELECT id FROM {Project.objects.model._meta.db_table} 
+            WHERE status=%s AND (deadline < %s OR max_shares > 0
+                AND (SELECT sum(quantity) FROM artcrowd_share
+                WHERE project_id=artcrowd_project.id) >= max_shares)
+        ''', (Project.OPEN, timezone.now()))).all()
         obj.save()
         #return blockchain.buy_shares(obj, 3)
         if form.initial.get('status') != form.cleaned_data['status']:
             if form.cleaned_data['status'] == models.Project.REFUNDED:
                 blockchain.refund(obj)
+                obj.project_shares.all().delete()
             elif form.cleaned_data['status'] == models.Project.COMPLETED:
-                #blockchain.update_project_status(obj)
+                blockchain.update_project_status(obj)
                 meta_url = reverse('project_metadata', args=(obj.id,))
                 meta_url = request.build_absolute_uri(meta_url)
                 blockchain.generate_tokens(obj, meta_url)
             elif form.cleaned_data['status'] == models.Project.OPEN:
                 blockchain.create_project(obj)
+            elif form.cleaned_data['status'] == models.Project.SALE_CLOSED:
+                blockchain.update_project_status(obj)

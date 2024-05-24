@@ -17,6 +17,8 @@ tezos = pytezos.using(shell=settings.TEZOS_NETWORK, key=keyfile['edsk'])
 def validate_signature(wallet, signature, message):
     try:
         public_key = tezos.shell.contracts[wallet].manager_key()
+        if not public_key:
+            raise Exception(f'unable to get public key for {wallet}')
         return Key.from_encoded_key(public_key).verify(signature, message)
     except Exception as ex:
         logging.warning(ex)
@@ -35,10 +37,10 @@ def create_project(project: models.Model):
     tezos.bulk(*ops).send(min_confirmations=0)
 
 
-def update_project_status(project: models.Model):
+def update_project_status(project: models.Model, confirmations=0):
     contract = tezos.contract(settings.PROJECTS_CONTRACT)
     ops = [contract.update_project_status(project.status, project.id)]
-    tezos.bulk(*ops).send(min_confirmations=0)
+    tezos.bulk(*ops).send(min_confirmations=confirmations)
 
 
 def refund(project: models.Model):
@@ -51,8 +53,9 @@ def refund(project: models.Model):
 
 
 def generate_tokens(project: models.Model, metadata_url):
-    contract = tezos.contract(settings.GALLERY_CONTRACT)
-    token_id = contract.storage['next_token_id']()
+    contract = tezos.contract(settings.PROJECTS_CONTRACT)
+    gallery_contract = tezos.contract(settings.GALLERY_CONTRACT)
+    token_id = gallery_contract.storage['next_token_id']()
     # upload meta
     meta_url = metadata_url.encode()
     shares = defaultdict(int)
@@ -61,7 +64,7 @@ def generate_tokens(project: models.Model, metadata_url):
     wallets = list(shares.keys())
     ops = [
         contract.update_project_status(project.status, project.id),
-        contract.withdraw_mutez(project.artist.tzwallet, project.shares_sum * 1_000_000)
+        contract.withdraw_mutez(project.shares_sum * 1_000_000, project.artist.tzwallet)
     ]
     token_generated = False
     for i in range(0, len(wallets), 500):
@@ -69,7 +72,7 @@ def generate_tokens(project: models.Model, metadata_url):
         if not token_generated:
             params[0]["token"] = {"new": {"": meta_url}}
             token_generated = True
-        ops.append(contract.mint(params))
+        ops.append(gallery_contract.mint(params))
     result = tezos.bulk(*ops).send(min_confirmations=0)
     return result
 

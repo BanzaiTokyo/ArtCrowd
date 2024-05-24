@@ -1,10 +1,10 @@
+import os
 import json
 from datetime import timedelta
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.contrib.auth import authenticate
-from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.conf import settings
@@ -163,7 +163,7 @@ class BuySharesSerializer(serializers.ModelSerializer):
 
 class ProjectMetadataSerializer(serializers.Serializer):
     def to_representation(self, instance):
-        image_url = instance.image.url
+        image_url = os.path.join(settings.ROOT_URL,  instance.image.url)
         image_ext = str(instance.image).split('.')[-1]
         with open(settings.TEZOS_WALLET_KEYFILE, 'rt') as fp:
             keyfile = json.load(fp)

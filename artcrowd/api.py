@@ -3,6 +3,7 @@ from django.urls import path
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied, BadRequest
 from django.db.models import Count, Sum, Subquery, OuterRef
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.http import HttpResponse
 from django.conf import settings
@@ -89,7 +90,7 @@ class ProjectsList(generics.ListAPIView):
     def get_queryset(self):
         subquery = models.Share.objects.filter(project=OuterRef('pk')).values('project').annotate(
             shares_num=Sum('quantity')).values('shares_num')
-        queryset = models.Project.objects.annotate(shares_num=Subquery(subquery)).distinct()
+        queryset = models.Project.objects.annotate(shares_num=Coalesce(Subquery(subquery), 0)).distinct()
         return queryset
 
     serializer_class = serializers.ProjectBriefSerializer
@@ -161,7 +162,7 @@ class BuySharesView(generics.CreateAPIView):
             patron = models.User.get_or_create_from_wallet(tzwallet=wallet)
             share = models.Share.objects.create(project=project, patron=patron, quantity=num_shares,
                                                 ophash=serializer.validated_data['ophash'])
-            if project.max_shares and project.shares_num > project.max_shares:
+            if project.max_shares and project.shares_num >= project.max_shares:
                 project.status = project.SALE_CLOSED
                 project.save()
                 blockchain.update_project_status(project)
