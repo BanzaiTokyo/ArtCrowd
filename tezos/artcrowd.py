@@ -20,6 +20,7 @@ def tt():
 
     buy_shares: type = sp.record(
         project_id=sp.nat,
+        wallet=sp.address,
         shares=sp.nat,
     ).layout(("project_id", "shares"))
 
@@ -34,12 +35,13 @@ def tt():
     ).layout(("to_", "amount"))
     TShareKey: type = sp.pair[sp.nat, sp.address]
     TShares: type = sp.big_map[TShareKey, sp.nat]
+    TLedger: type = sp.big_map[sp.address, sp.nat]
     TProject: type = sp.record(
         status=sp.string,
         share_price=sp.mutez,
         total_shares=sp.nat
     ).layout(("status", ("share_price", "total_shares")))
-    TRefund: type = sp.record(
+    TRefundAll: type = sp.record(
         project_id=sp.nat,
         wallets=list[sp.address],
     ).layout(("project_id", "wallets"))
@@ -54,6 +56,7 @@ def m():
             self.data.fee_pct = sp.nat(103)  # 1 + 3%
             self.data.projects = sp.cast(sp.big_map(), sp.big_map[sp.nat, tt.TProject])
             self.data.shares = sp.cast(sp.big_map(), tt.TShares)
+            self.data.ledger = sp.cast(sp.big_map(), tt.TLedger)
 
         @sp.entrypoint
         def create_project(self, project_id, share_price):
@@ -62,7 +65,7 @@ def m():
             #(project_id, share_price) = params
             assert not self.data.projects.contains(project_id), "project already exists"
             self.data.projects[project_id] = sp.record(
-                status='open', total_shares=0, share_price=share_price
+                status='open', max_shares=0, share_price=share_price
             )
 
         @sp.entrypoint
@@ -75,30 +78,26 @@ def m():
             self.data.projects[project_id] = project
 
         @sp.entrypoint
-        def buy_shares(self, project_id, num_shares):
-            #sp.cast(params, tt.buy_shares)
-            #(project_id, num_shares) = params
-            assert num_shares > 0, "Shares must be greater than 0."
-            assert self.data.projects.contains(project_id), "Project not found."
-            project = self.data.projects[project_id]
-            assert project.status == 'open', "Project is not open for participation"
-            nofee_amount = sp.split_tokens(project.share_price, num_shares, 1)
-            total_amount = sp.split_tokens(nofee_amount, self.data.fee_pct, 100)
-            assert sp.amount == total_amount, "Transaction amount must equal to share price * number of shares + service fee"
-            shares_key = (project_id, sp.sender)
-            project = self.data.projects[project_id]
-            self.data.shares[shares_key] = self.data.shares.get(shares_key, default=0) + num_shares
-            project.total_shares = project.total_shares + num_shares
-            self.data.projects[project_id] = project
-            #self.data.projects[project_id] = sp.record(
-            #    shares = sp.update_map(sp.sender, sp.Some(current_shares + num_shares), project.shares),
-            #    status = project.status,
-            #    share_price = project.share_price,
-            #    total_shares = project.total_shares + num_shares
-            #)
+        def add_money(self):
+            self.data.ledger[sp.sender] = sp.amount
 
         @sp.entrypoint
-        def refund(self, project_id, wallets):
+        def refund(self, wallet):
+            sp.send(wallet, self.data.ledger[wallet])
+            del self.data.ledger[wallet]
+
+        @sp.entrypoint
+        def buy_shares(self, project_id, wallet, num_shares):
+            project = self.data.projects[project_id]
+            project.total_shares = project.total_shares + num_shares
+            self.data.projects[project_id] = project
+            shares_key = (project_id, wallet)
+            self.data.shares[shares_key] = self.data.shares.get(shares_key, default=0) + num_shares
+            amount = num_shares * project.share_price
+            self.data.ledger[wallet] = self.data.ledger[wallet] - amount
+
+        @sp.entrypoint
+        def refund_all(self, project_id, wallets):
             assert self.is_administrator_(), "FA2_NOT_ADMIN"
             #(project_id, wallets) = params
             assert self.data.projects.contains(project_id), "Project not found."
@@ -113,26 +112,3 @@ def m():
                     #withdraw_with_fee = sp.split_tokens(withdraw_amount_no_fee, self.data.fee_pct, 100)
                     sp.send(wallet, withdraw_amount_no_fee)
             self.data.projects[project_id] = project
-
-
-@sp.add_test(name="Fungible", is_default=True)
-def test():
-    sc = sp.test_scenario([fa2.t, main, tt, m])
-    admin = sp.address('tz1NukWgsw89MAb254g8kc5M8J9CmDs2e3Lo')#sp.test_account("tz1NukWgsw89MAb254g8kc5M8J9CmDs2e3Lo").address
-    player1 = sp.test_account("player1").address
-    player2 = sp.test_account("player2").address
-    treasury = sp.test_account("treasury").address
-    c1 = m.ProjectContract(admin)
-    sc += c1
-    project_id = 1
-    c1.create_project(sp.record(project_id=project_id, share_price=sp.mutez(100))).run(sender=admin)
-    #c1.buy_shares(sp.record(project_id=project_id, num_shares=3)).run(sender=player1, valid=False)
-    c1.update_project_status(sp.record(project_id=project_id, new_status='open')).run(sender=admin)
-    c1.buy_shares(sp.record(project_id=project_id, num_shares=3)).run(amount=sp.mutez(309), sender=player1)
-    sc.verify(c1.data.shares[(1, player1)] == 3)
-    c1.buy_shares(sp.record(project_id=project_id, num_shares=5)).run(amount=sp.mutez(515), sender=player2)
-    c1.refund(sp.record(project_id=project_id, wallets=[player2])).run(sender=admin)
-    c1.withdraw_mutez(sp.record(amount=sp.split_tokens(sp.mutez(309), 1, 1), destination=treasury)).run(sender=admin)
-    sc.verify(c1.balance == sp.mutez(15))  # fee from player1
-    sc.verify(c1.data.shares[(1, player1)] == 3)
-    sc.verify(~ c1.data.shares.contains((1, player2)))

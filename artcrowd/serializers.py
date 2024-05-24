@@ -151,9 +151,9 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
 class BuySharesSerializer(serializers.ModelSerializer):
     ophash = serializers.CharField(max_length=51, write_only=True)
-    blockhash = serializers.CharField(max_length=51, write_only=True)
+    wallet = serializers.CharField(max_length=36, write_only=True)
+    quantity = serializers.IntegerField()
     patron = UserBriefSerializer(read_only=True)
-    quantity = serializers.IntegerField(read_only=True)
     purchased_on = serializers.DateTimeField(read_only=True)
 
     class Meta:

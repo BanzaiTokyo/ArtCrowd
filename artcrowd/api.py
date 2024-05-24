@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.urls import path
+from django.urls import path, reverse
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied, BadRequest
 from django.db.models import Count, Sum, Subquery, OuterRef
@@ -156,16 +156,32 @@ class BuySharesView(generics.CreateAPIView):
     def perform_create(self, serializer):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
         ophash = serializer.validated_data['ophash']
-        blockhash = serializer.validated_data.pop('blockhash')
-        num_shares, wallet = blockchain.get_bought_shares(ophash, blockhash)
+        wallet = serializer.validated_data['wallet']
+        num_shares = serializer.validated_data['quantity']
+        wallet_money = blockchain.get_wallet_money(wallet)
+        total_bought_shares = blockchain.get_bought_shares(project)
+
+        if wallet_money < project.share_price * serializer.validated_data['quantity']:
+            blockchain.refund(wallet)
+            raise BadRequest('Not enough money')
+        if total_bought_shares + num_shares > project.max_shares:
+            blockchain.refund(wallet)
+            raise BadRequest(f'There are only {project.max_shares - project.shares_num} shares left to buy')
+
+        blockchain.buy_shares(project, wallet, num_shares)
+
+        patron = models.User.get_or_create_from_wallet(tzwallet=wallet)
         if not (share := models.Share.objects.filter(ophash=ophash).first()):
-            patron = models.User.get_or_create_from_wallet(tzwallet=wallet)
             share = models.Share.objects.create(project=project, patron=patron, quantity=num_shares,
                                                 ophash=serializer.validated_data['ophash'])
             if project.max_shares and project.shares_num >= project.max_shares:
                 project.status = project.SALE_CLOSED
                 project.save()
                 blockchain.update_project_status(project)
+        if models.Share.objects.filter(patron=patron).count() == 1:  # first purchase
+            meta_url = reverse('project_metadata', args=(project.id,))
+            meta_url = self.request.build_absolute_uri(meta_url)
+            blockchain.generate_token(project, meta_url, wallet)
         serializer._validated_data = share
 
 
