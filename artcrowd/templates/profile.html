@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile | {{ user.username }}</title>
+</head>
+<body>
+<img src="{{ user.avatar }}" style="float: left" alt="profile picture" />
+<h1>{{ user.username }}</h1>
+<p>user description</p>
+<div style="clear: both"></div>
+<h2>My projects</h2>
+{% for project in projects %}
+    <div>
+        <img src="{{ project.image }}" alt="project image" style="float: left" />
+        <h3>{{ project.title }}</h3>
+        <div>Tezos</div>
+        <div>{{ project.shares_sum }} Tez</div>
+        <div>{{ project.shares_num }} Shares</div>
+        <div>Started: {{ project.created_on }}&nbsp;&nbsp;&nbsp;Deadline: {{ project.deadline }}</div>
+        <div>{{ project.description }}</div>
+        <div>Status: {{ project.status }}</div>
+        <div style="clear: both"></div>
+    </div>
+{% endfor %}
+
+{% if user.groups.all.0.name == "Gallery" %}
+<h2>My gallery projects</h2>
+{% for project in gallery_projects %}
+    <div>
+        <img src="{{ project.image }}" alt="project image" style="float: left" />
+        <h3>{{ project.title }}</h3>
+        <div>Tezos</div>
+        <div>{{ project.shares_sum }} Tez</div>
+        <div>{{ project.shares_num }} Shares</div>
+        <div>Started: {{ project.created_on }}&nbsp;&nbsp;&nbsp;Deadline: {{ project.deadline }}</div>
+        <div>{{ project.description }}</div>
+        <div>Status: {{ project.status }}</div>
+        <div style="clear: both"></div>
+    </div>
+{% endfor %}
+{% endif %}
+
+<h2>I have supported</h2>
+{% for project in supported_projects %}
+    <div>
+        <img src="{{ project.image }}" alt="project image" />
+        {{ project.title }}
+        <img src="{{ project.artist.avatar }}" alt="user avatar" />
+        {{ project.artist.username }}
+        {{ project.shares_num }}
+    </div>
+{% endfor %}
+</body>
+</html>
