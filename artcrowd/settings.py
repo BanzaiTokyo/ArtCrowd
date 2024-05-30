@@ -27,8 +27,9 @@ SECRET_KEY = 'django-insecure-&tr-pkg#udde!du2##4f23f**+4ps#z+vm@*hqtb#yf3d$u10d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['localhost', 'api.artcrowd.org', '78.202.112.75']
+USE_X_FORWARDED_PROTO = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -42,7 +43,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'sslserver',
+    'django_filters',
+    'drf_spectacular',
+    #'sslserver',
+    'sorl.thumbnail',
+    'ckeditor',
+    'django_crontab',
     'artcrowd',
 ]
 
@@ -131,9 +137,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
+ROOT_URL = 'https://api.artcrowd.org'
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+THUMBNAIL_COLORSPACE = None
+THUMBNAIL_PRESERVE_FORMAT = True
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+DATA_MAX_MEMORY_SIZE = 20 * 1024 * 1024
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
@@ -147,7 +158,21 @@ LOGOUT_REDIRECT_URL = '/'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication'
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'logins': '1/second',
+        'projects': '1/second',
+        'updates': '1/second'
+    },
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'artcrowd.AutoSchema'
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -156,9 +181,28 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
-PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq')#'KT1HTG4VgdGGqXvTi919B4y88L235thUgpcR')
-GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x')
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat'],
+        ],
+        'width': 800,
+        'height': 300,
+    },
+}
+
+CRONJOBS = [
+    ('0 * * * *', 'artcrowd.cron.close_expired_projects')
+]
+
+PROJECTS_CONTRACT = os.getenv('PROJECTS_CONTRACT', 'KT1WYtFLhxmBkLYJrBg4xaA6sStnMuTwZA57')  # KT1DohyRaZNCaqoebhSkrGArXX6iPaqutVTq
+GALLERY_CONTRACT = os.getenv('GALLERY_CONTRACT', 'KT1GLXsZwLLJ4Lsiv7RqS8K9Pa93gZEQiGW3')  # KT1V2an2yE7V2ETqynzdJuA6dF6Da9uPtt3x
 TEZOS_NETWORK = os.getenv('TEZOS_NETWORK', 'ghostnet')
-TEZOS_API = os.getenv('TEZOS_API', 'https://api.ghost.tzstats.com/explorer/')
-TEZOS_WALLET_KEYFILE = os.getenv('TEZOS_WALLET_KEYFILE', 'wallet.json')
+TEZOS_WALLET_KEYFILE = os.getenv('TEZOS_WALLET_KEYFILE', os.path.join(os.path.dirname(os.path.realpath(__file__)), '../wallet.json'))
 TOKEN_METADATA = os.getenv('TOKEN_METADATA', 'metadata.json')
+UPDATE_POST_INTERVAL = 12 * 3600  # in seconds

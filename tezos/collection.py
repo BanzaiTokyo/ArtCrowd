@@ -12,7 +12,7 @@ def test():
     tok1_md = fa2.make_metadata(name="Token One", decimals=1, symbol="Tok1")
     tok2_md = fa2.make_metadata(name="Token Two", decimals=1, symbol="Tok2")
     TOKEN_METADATA = [tok0_md, tok1_md, tok2_md]
-    METADATA = sp.utils.metadata_of_url("https://artcrowd.org/collection_meta.json")
+    METADATA = sp.utils.metadata_of_url("https://api.artcrowd.org/collection_meta.json")
     ledger = {
         #(alice.address, 0): 42,
         #(alice.address, 1): 42,

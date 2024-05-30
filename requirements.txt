@@ -1,8 +1,15 @@
 django==5.0a1
 django-rest-framework
 django-cors-headers
+django-filter
 Pillow
 requests
 python-dotenv
 psycopg2-binary
+django-sslserver
 pytezos
+drf-spectacular
+sorl-thumbnail
+sorl-thumbnail-serializer-field
+django-ckeditor
+django-crontab
