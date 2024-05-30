@@ -2,8 +2,14 @@ import React from 'react';
 import {TezosToolkit} from "@taquito/taquito";
 import {BeaconWallet} from '@taquito/beacon-wallet';
 import {char2Bytes} from '@taquito/utils';
-import {RequestSignPayloadInput, SigningType, SignPayloadResponseOutput} from '@airgap/beacon-types';
-import {API_BASE_URL, SITE_NAME, TEZOS_URL} from "../Constants";
+import {
+    Network,
+    NetworkType,
+    RequestSignPayloadInput,
+    SigningType,
+    SignPayloadResponseOutput
+} from '@airgap/beacon-types';
+import {API_BASE_URL, SITE_NAME, TEZOS_NETWORK, TEZOS_URL} from "../Constants";
 import {useAuth} from "./AuthContext";
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -19,8 +25,14 @@ const FormPage: React.FC = () => {
     //todo: put into a service file
     const connectWallet = async () => {
         let myAddress: string;
-        const Tezos = new TezosToolkit(TEZOS_URL);
-        const wallet = new BeaconWallet({name: SITE_NAME});
+        const walletPermissions = {
+            network: {
+                type: TEZOS_NETWORK as NetworkType,
+                rpcUrl: TEZOS_URL
+            } as Network
+        }
+        const Tezos = new TezosToolkit(walletPermissions.network.rpcUrl!);
+        const wallet = new BeaconWallet({name: SITE_NAME, network: walletPermissions.network});
         let account;
 
         Tezos.setWalletProvider(wallet);

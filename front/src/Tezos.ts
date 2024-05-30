@@ -1,7 +1,7 @@
 import {TezosToolkit} from "@taquito/taquito";
-import {ARTCROWD_CONTRACT, TEZOS_URL, TEZOS_NETWORK, FEE_PCT} from "./Constants";
+import {ARTCROWD_CONTRACT, TEZOS_URL, TEZOS_NETWORK, FEE_PCT, SITE_NAME} from "./Constants";
 import {BeaconWallet} from "@taquito/beacon-wallet";
-import { NetworkType } from '@airgap/beacon-types';
+import { NetworkType, Network } from '@airgap/beacon-types';
 
 export const buyShares = async (projectId: number, sharePrice: number, numShares: number) => {
     try {
@@ -9,10 +9,10 @@ export const buyShares = async (projectId: number, sharePrice: number, numShares
             network: {
                 type: TEZOS_NETWORK as NetworkType,
                 rpcUrl: TEZOS_URL
-            }
+            } as Network
         }
-        const Tezos = new TezosToolkit(walletPermissions.network.rpcUrl);
-        const wallet = new BeaconWallet({name: 'Artcrowd', network: walletPermissions.network});
+        const Tezos = new TezosToolkit(walletPermissions.network.rpcUrl!);
+        const wallet = new BeaconWallet({name: SITE_NAME, network: walletPermissions.network});
         if (!localStorage.getItem('beacon:active-account') || localStorage.getItem('beacon:active-account') === 'undefined') {
             await wallet.requestPermissions(walletPermissions);
         }
