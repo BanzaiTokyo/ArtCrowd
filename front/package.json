@@ -1,0 +1,58 @@
+{
+  "name": "artcrowd_front",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@agbishop/mui-rte": "^3.0.1",
+    "@mui/material": "^5.14.12",
+    "@mui/x-date-pickers": "^6.16.1",
+    "@taquito/beacon-wallet": "^17.3.1",
+    "@taquito/signer": "^17.3.1",
+    "@taquito/taquito": "^17.3.1",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.54",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
+    "buffer": "^6.0.3",
+    "dayjs": "^1.11.10",
+    "draft-js-export-html": "^1.4.1",
+    "material-react-table": "^1.14.0",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-app-rewired": "^2.2.1",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.46.2",
+    "react-router-dom": "^6.16.0",
+    "react-scripts": "^5.0.1",
+    "stream-browserify": "^3.0.0",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
