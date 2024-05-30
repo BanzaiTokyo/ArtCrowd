@@ -25,6 +25,8 @@ import HSpacer from "../../components/common/HSpacer";
 import SharesInfo from "./SharesInfo";
 import ProjectUpdateForm from "./update/ProjectUpdateForm";
 import BuySharesForm from "./buy/BuySharesForm";
+import {ProjectUpdate} from "../../models/ProjectUpdate";
+import {Share} from "../../models/Share";
 
 // const IMAGE_STYLE_FULL_SIZE = {maxWidth: '100%', maxHeight: '900px', objectFit: 'scale-down'};
 
@@ -67,9 +69,28 @@ const ProjectPage = () => {
                 .then(response => {
                     return response.ok ? response.json() : null
                 })
-                .then((project: Project | null) => setProject(project as Project))
+                .then((project: Project | null) => {
+                    setProject(project as Project);
+                })
         }
     }, [projectId, token])
+
+    const handleProjectUpdateSubmit = (newUpdate: ProjectUpdate) => {
+        setProject((prevProject: any) => ({
+            ...prevProject,
+            can_post_update: false,
+            updates: [newUpdate, ...prevProject.updates],
+        }))
+      };
+
+    const handleBuyShare = (newShare: Share) => {
+        setProject((prevProject: any) => ({
+            ...prevProject,
+            can_buy_shares: !prevProject.max_shares || (prevProject.max_shares < prevProject.num_shares + newShare.quantity),
+            shares: [newShare, ...prevProject.shares],
+        }))
+      };
+
 
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -120,7 +141,7 @@ const ProjectPage = () => {
                 <SharesInfo project={project}/>
             </Stack>
 
-            {project.can_buy_shares && <BuySharesForm project={project}/>}
+            {project.can_buy_shares && <BuySharesForm project={project} onSubmitCallback={handleBuyShare}/>}
 
             {/*TODO: work on this part when we have projects presented by*/}
             {project.presenter && <Stack direction={'row'}
@@ -199,11 +220,11 @@ const ProjectPage = () => {
                 </Stack>
             </Box>}
 
-            {project.can_post_update &&
+            {project.can_post_update ?
             <Box sx={{paddingTop: '1rem', borderTop: 1, borderColor: 'divider', marginTop: '1rem'}}>
                 <Typography variant={'h4'}>Post an update to the project</Typography>
-                <ProjectUpdateForm projectId={projectId}/>
-            </Box>}
+                <ProjectUpdateForm projectId={projectId!} onSubmitCallback={handleProjectUpdateSubmit} />
+            </Box> : null}
 
 
             {project.shares != null && project.shares.length > 0 &&

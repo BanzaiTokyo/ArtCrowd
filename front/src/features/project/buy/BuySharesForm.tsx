@@ -14,28 +14,34 @@ interface IBuyShares {
 
 interface BuySharesFormParams {
     project: Project;
+    onSubmitCallback?: any
 }
 
 function BuySharesForm(params: BuySharesFormParams) {
-    const {project} = params;
+    const {project, onSubmitCallback} = params;
     const {register, handleSubmit, setError, formState: {errors}} = useForm<IBuyShares>()
     const {token} = useAuth();
     const fetchWithAuth = configureFetch(token);
     const [selectedNumShares, setSelectedNumShares] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const maxSharesCanBuy = project.max_shares ? project.max_shares - project.shares_num : undefined
 
     const onSubmit: SubmitHandler<IBuyShares> = async (data) => {
-        const ophash = await buyShares(project.id, project.share_price, data.num_shares);
-        if (!ophash) {
+        setIsLoading(true)
+        const opResult = await buyShares(project.id, project.share_price, data.num_shares);
+        if (!opResult) {
+            setIsLoading(false)
             return
         }
         try {
             const response = await fetchWithAuth(API_BASE_URL + `projects/${project.id}/buy`, {
                 method: 'POST',
-                body: JSON.stringify({ophash}),
+                body: JSON.stringify(opResult),
             });
             const responseData = await response.json();
+            setIsLoading(false)
             if (response.ok) {
+                !!onSubmitCallback && onSubmitCallback(responseData)
                 //navigate(`${responseData.id}`)
             } else {
                 for (const field in responseData) {
@@ -49,6 +55,7 @@ function BuySharesForm(params: BuySharesFormParams) {
             }
         } catch (error) {
             console.error('API Error:', error);
+            setIsLoading(false)
         }
     };
 
@@ -127,7 +134,9 @@ function BuySharesForm(params: BuySharesFormParams) {
                 <br/>
 
                 {/*<input {...register("num_shares", {required: true, valueAsNumber: true})} /> shares*/}
-                <Button type="submit" variant="contained" size={'large'} startIcon={<FavoriteIcon/>}>Buy</Button>
+                <Button type="submit" variant="contained" size={'large'} startIcon={<FavoriteIcon/>} disabled={isLoading}>
+                    <span>{isLoading ? 'Performing blockchain operations...' : 'Buy'}</span>
+                </Button>
 
                 <br/>
                 {errors.num_shares && <span>{errors.num_shares.message || 'field required'}</span>}
