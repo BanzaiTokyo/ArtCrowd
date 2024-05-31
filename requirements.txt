@@ -13,3 +13,4 @@ sorl-thumbnail
 sorl-thumbnail-serializer-field
 django-ckeditor
 django-crontab
+behave
